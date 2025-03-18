@@ -17,6 +17,14 @@ class PreviewWindow:
         self.preview_canvas.pack(fill=tk.BOTH, expand=True)
         self.preview_image = None
 
+    @staticmethod
+    def handle_click(x, y):
+        """处理点击事件，模拟鼠标点击"""
+        print(f"处理点击事件: ({x}, {y})")
+        # pyautogui.click(x, y)
+        # pyautogui.PAUSE = 0.1
+        pyautogui.doubleClick(x, y)
+
     def update_preview(self):
         """更新预览窗口中的截图"""
         screenshot = ImageGrab.grab(bbox=self.region)
@@ -30,17 +38,10 @@ class PreviewWindow:
         screen_x = self.region[0] + event.x
         screen_y = self.region[1] + event.y
         print(f"点击屏幕坐标: ({screen_x}, {screen_y})")
-        handle_click(screen_x, screen_y)
+        self.handle_click(screen_x, screen_y)
 
     def start(self):
         """启动预览窗口，绑定事件并开始更新循环"""
         self.preview_canvas.bind("<Button-1>", self.on_canvas_click)
         self.update_preview()
         self.preview_window.mainloop()
-
-
-def handle_click(x, y):
-    """处理点击事件，模拟鼠标点击"""
-    print(f"处理点击事件: ({x}, {y})")
-    pyautogui.click(x, y)
-    pyautogui.doubleClick(x, y)
