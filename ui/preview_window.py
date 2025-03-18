@@ -6,15 +6,19 @@ import keyboard
 
 class PreviewWindow:
     def __init__(self, region):
+        self.x, self.y = 0, 0
         """初始化预览窗口，设置窗口大小和画布"""
         self.region = region
         self.preview_window = tk.Tk()
         self.preview_window.title("eve-tool")
+        # 设置窗口整体透明度（0.8为示例值，范围0-1）
+        self.preview_window.attributes('-alpha', 0.95)
         # 设置窗口置顶
         self.preview_window.attributes('-topmost', True)
         width = abs(region[2] - region[0])
         height = abs(region[3] - region[1])
         self.preview_window.geometry(f"{width}x{height}")
+        self.preview_window.overrideredirect(True)
         self.preview_canvas = tk.Canvas(self.preview_window)
         self.preview_canvas.pack(fill=tk.BOTH, expand=True)
         self.preview_image = None
@@ -28,6 +32,21 @@ class PreviewWindow:
         pyautogui.click(x, y)
         pyautogui.PAUSE = 0.1
         pyautogui.doubleClick(x, y)
+
+    def close(self, event):
+        """关闭预览窗口"""
+        self.preview_window.destroy()
+
+    def on_canvas_press_right(self, event):
+        """记录右键按下时的初始坐标"""
+        self.x = event.x
+        self.y = event.y
+
+    def move(self, event):
+        """窗口移动事件（已修正坐标计算）"""
+        new_x = self.preview_window.winfo_x() + (event.x - self.x)
+        new_y = self.preview_window.winfo_y() + (event.y - self.y)
+        self.preview_window.geometry(f"+{new_x}+{new_y}")
 
     def handle_center_click(self):
         """处理快捷键点击事件，传入窗口中心坐标"""
@@ -54,5 +73,9 @@ class PreviewWindow:
     def start(self):
         """启动预览窗口，绑定事件并开始更新循环"""
         self.preview_canvas.bind("<Button-1>", self.on_canvas_click)
+        self.preview_canvas.bind("<Double-Button-3>", self.close)
+        # 新增右键拖动绑定
+        self.preview_canvas.bind("<ButtonPress-3>", self.on_canvas_press_right)  # 右键按下
+        self.preview_canvas.bind("<B3-Motion>", self.move)  # 右键拖动
         self.update_preview()
         self.preview_window.mainloop()
