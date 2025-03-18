@@ -1,6 +1,7 @@
 from ui.preview_window import PreviewWindow
 from utils.screen_util import ScreenRegionSelector
 
+
 def get_selected_region():
     """获取用户选择的屏幕区域，并启动预览窗口"""
     selector = ScreenRegionSelector()
