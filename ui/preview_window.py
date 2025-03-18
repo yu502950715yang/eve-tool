@@ -1,6 +1,7 @@
 import pyautogui
 from PIL import ImageGrab, ImageTk
 import tkinter as tk
+import keyboard
 
 
 class PreviewWindow:
@@ -16,14 +17,22 @@ class PreviewWindow:
         self.preview_canvas = tk.Canvas(self.preview_window)
         self.preview_canvas.pack(fill=tk.BOTH, expand=True)
         self.preview_image = None
+        # 绑定快捷键“·”
+        keyboard.add_hotkey('`', self.handle_center_click)
 
     @staticmethod
     def handle_click(x, y):
         """处理点击事件，模拟鼠标点击"""
         print(f"处理点击事件: ({x}, {y})")
-        # pyautogui.click(x, y)
-        # pyautogui.PAUSE = 0.1
+        pyautogui.click(x, y)
+        pyautogui.PAUSE = 0.1
         pyautogui.doubleClick(x, y)
+
+    def handle_center_click(self):
+        """处理快捷键点击事件，传入窗口中心坐标"""
+        center_x = self.region[0] + (self.region[2] - self.region[0]) // 2
+        center_y = self.region[1] + (self.region[3] - self.region[1]) // 2
+        self.handle_click(center_x, center_y)
 
     def update_preview(self):
         """更新预览窗口中的截图"""
