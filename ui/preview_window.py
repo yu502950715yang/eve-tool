@@ -17,7 +17,7 @@ class PreviewWindow:
         self.preview_canvas = tk.Canvas(self.preview_window)
         self.preview_canvas.pack(fill=tk.BOTH, expand=True)
         self.preview_image = None
-        # 绑定快捷键“·”
+        # 绑定快捷键“·” 数字1旁边的按键
         keyboard.add_hotkey('`', self.handle_center_click)
 
     @staticmethod
