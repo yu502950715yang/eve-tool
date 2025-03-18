@@ -9,7 +9,8 @@ class PreviewWindow:
         """初始化预览窗口，设置窗口大小和画布"""
         self.region = region
         self.preview_window = tk.Tk()
-        self.preview_window.title("eve监控")
+        self.preview_window.title("eve-tool")
+        # 设置窗口置顶
         self.preview_window.attributes('-topmost', True)
         width = abs(region[2] - region[0])
         height = abs(region[3] - region[1])
