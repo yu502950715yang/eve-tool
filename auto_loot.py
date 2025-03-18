@@ -2,7 +2,7 @@ import time
 
 import pyautogui
 
-from screen_util import get_selected_region
+from utils.screen_util import get_selected_region
 
 
 # 定义拾取残骸的函数
