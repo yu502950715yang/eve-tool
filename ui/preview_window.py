@@ -100,7 +100,7 @@ class PreviewWindow:
         # 绑定快捷键“·” 数字1旁边的按键
         hotkey1 = keyboard.add_hotkey('`', self.handle_center_click)
         self.hotkeys.append(hotkey1)
-        # 绑定快捷键“·” 数字1旁边的按键
+        # 绑定快捷键
         hotkey2 = keyboard.add_hotkey('ctrl+alt+r', self.restart)
         self.hotkeys.append(hotkey2)
         self.update_preview()
