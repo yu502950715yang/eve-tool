@@ -56,12 +56,20 @@ class PreviewWindow:
 
     def update_preview(self):
         """更新预览窗口中的截图"""
+        try:
+            screenshot = ImageGrab.grab(bbox=self.region)
+            if screenshot.size == (0, 0):  # 检查无效截图
+                raise Exception("Invalid screenshot")
+        except Exception as e:
+            print(f"截图失败: {e}")
+            self.preview_window.after(1000, self.update_preview)  # 1秒后重试
+            return
         screenshot = ImageGrab.grab(bbox=self.region)
         self.preview_image = ImageTk.PhotoImage(screenshot)
         self.preview_canvas.create_image(0, 0, anchor=tk.NW, image=self.preview_image)
         self.preview_window.update()
         # 每10毫秒更新预览窗口
-        self.preview_window.after(10, self.update_preview)
+        self.preview_window.after(50, self.update_preview)
 
     def on_canvas_click(self, event):
         """处理画布点击事件，计算并输出点击的屏幕坐标"""
