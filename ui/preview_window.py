@@ -64,7 +64,6 @@ class PreviewWindow:
             print(f"截图失败: {e}")
             self.preview_window.after(1000, self.update_preview)  # 1秒后重试
             return
-        screenshot = ImageGrab.grab(bbox=self.region)
         self.preview_image = ImageTk.PhotoImage(screenshot)
         self.preview_canvas.create_image(0, 0, anchor=tk.NW, image=self.preview_image)
         self.preview_window.update()
