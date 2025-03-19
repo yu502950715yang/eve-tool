@@ -28,6 +28,8 @@
 
 6.鼠标右键双击窗口可以关闭程序
 
+7.ctrl+alt+r 快捷键可以重新选取监控区域
+
 # 安装依赖
 
 pip install -r requirements.txt
