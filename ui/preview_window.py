@@ -72,10 +72,13 @@ class PreviewWindow:
 
     def start(self):
         """启动预览窗口，绑定事件并开始更新循环"""
+        # 左键点击
         self.preview_canvas.bind("<Button-1>", self.on_canvas_click)
+        # 右键双击
         self.preview_canvas.bind("<Double-Button-3>", self.close)
-        # 新增右键拖动绑定
-        self.preview_canvas.bind("<ButtonPress-3>", self.on_canvas_press_right)  # 右键按下
-        self.preview_canvas.bind("<B3-Motion>", self.move)  # 右键拖动
+        # 右键按下
+        self.preview_canvas.bind("<ButtonPress-3>", self.on_canvas_press_right)
+        # 右键拖动
+        self.preview_canvas.bind("<B3-Motion>", self.move)
         self.update_preview()
         self.preview_window.mainloop()
