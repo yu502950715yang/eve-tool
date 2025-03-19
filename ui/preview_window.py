@@ -6,7 +6,9 @@ from PIL import ImageGrab, ImageTk
 
 
 class PreviewWindow:
-    def __init__(self, region, restart_callback):
+    def __init__(self, region, restart_callback, window_region=None):
+        if window_region is None:
+            window_region = [0, 0]
         self.restart_callback = restart_callback
         self.x, self.y = 0, 0
         """初始化预览窗口，设置窗口大小和画布"""
@@ -19,7 +21,7 @@ class PreviewWindow:
         self.preview_window.attributes('-topmost', True)
         width = abs(region[2] - region[0])
         height = abs(region[3] - region[1])
-        self.preview_window.geometry(f"{width}x{height}")
+        self.preview_window.geometry(f"{width}x{height}+{window_region[0]}+{window_region[1]}")
         self.preview_window.overrideredirect(True)
         self.preview_canvas = tk.Canvas(self.preview_window)
         self.preview_canvas.pack(fill=tk.BOTH, expand=True)
@@ -109,5 +111,6 @@ class PreviewWindow:
     def restart(self):
         """重新选择监控区域"""
         self.restart_flag = True
-        self.preview_window.after(0, self.restart_callback)
+        window_region = [self.preview_window.winfo_x(), self.preview_window.winfo_y()]
+        self.preview_window.after(0, lambda: self.restart_callback(window_region))
         self.close()
