@@ -1,11 +1,13 @@
+import tkinter as tk
+
+import keyboard
 import pyautogui
 from PIL import ImageGrab, ImageTk
-import tkinter as tk
-import keyboard
 
 
 class PreviewWindow:
-    def __init__(self, region):
+    def __init__(self, region, restart_callback):
+        self.restart_callback = restart_callback
         self.x, self.y = 0, 0
         """初始化预览窗口，设置窗口大小和画布"""
         self.region = region
@@ -22,8 +24,9 @@ class PreviewWindow:
         self.preview_canvas = tk.Canvas(self.preview_window)
         self.preview_canvas.pack(fill=tk.BOTH, expand=True)
         self.preview_image = None
-        # 绑定快捷键“·” 数字1旁边的按键
-        keyboard.add_hotkey('`', self.handle_center_click)
+        self.restart_flag = False
+        self.is_destroyed = False  # 标志窗口是否已经被销毁
+        self.hotkeys = []  # 用于存储绑定的快捷键
 
     @staticmethod
     def handle_click(x, y):
@@ -33,9 +36,14 @@ class PreviewWindow:
         pyautogui.PAUSE = 0.1
         pyautogui.doubleClick(x, y)
 
-    def close(self, event):
+    def close(self, event=None):
         """关闭预览窗口"""
-        self.preview_window.destroy()
+        if not self.is_destroyed:
+            self.preview_window.destroy()
+            self.is_destroyed = True
+            # 取消绑定的快捷键
+            for hotkey in self.hotkeys:
+                keyboard.remove_hotkey(hotkey)
 
     def on_canvas_press_right(self, event):
         """记录右键按下时的初始坐标"""
@@ -56,6 +64,8 @@ class PreviewWindow:
 
     def update_preview(self):
         """更新预览窗口中的截图"""
+        if self.restart_flag:
+            return
         try:
             screenshot = ImageGrab.grab(bbox=self.region)
             if screenshot.size == (0, 0):  # 检查无效截图
@@ -87,5 +97,17 @@ class PreviewWindow:
         self.preview_canvas.bind("<ButtonPress-3>", self.on_canvas_press_right)
         # 右键拖动
         self.preview_canvas.bind("<B3-Motion>", self.move)
+        # 绑定快捷键“·” 数字1旁边的按键
+        hotkey1 = keyboard.add_hotkey('`', self.handle_center_click)
+        self.hotkeys.append(hotkey1)
+        # 绑定快捷键“·” 数字1旁边的按键
+        hotkey2 = keyboard.add_hotkey('ctrl+alt+r', self.restart)
+        self.hotkeys.append(hotkey2)
         self.update_preview()
         self.preview_window.mainloop()
+
+    def restart(self):
+        """重新选择监控区域"""
+        self.restart_flag = True
+        self.preview_window.after(0, self.restart_callback)
+        self.close()

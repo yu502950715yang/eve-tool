@@ -9,6 +9,8 @@ class ScreenRegionSelector:
         self.end_x = None
         self.end_y = None
         self.root = tk.Tk()
+        # 设置窗口置顶
+        self.root.attributes('-topmost', True)
         self.canvas = tk.Canvas(self.root, cursor="cross")
         self.canvas.pack(fill=tk.BOTH, expand=True)
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)

@@ -1,3 +1,5 @@
+import time
+
 from ui.preview_window import PreviewWindow
 from utils.screen_util import ScreenRegionSelector
 
@@ -8,12 +10,17 @@ def get_selected_region():
     region = selector.select_region()
     if region:
         print(f"选中区域坐标: {region}")
-        preview = PreviewWindow(region)
+        preview = PreviewWindow(region, restart_preview)
         preview.start()
     else:
         print("没有选择区域")
-    return region
+
+
+def restart_preview():
+    """重新选择监控区域"""
+    print("重新选择区域")
+    get_selected_region()
 
 
 if __name__ == "__main__":
-    selected_region = get_selected_region()
+    get_selected_region()
