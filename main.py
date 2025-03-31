@@ -1,5 +1,3 @@
-import time
-
 from ui.preview_window import PreviewWindow
 from utils.screen_util import ScreenRegionSelector
 
