@@ -11,7 +11,7 @@ class PreviewWindow:
             window_region = [0, 0]
         self.restart_callback = restart_callback
         self.x, self.y = 0, 0
-        """初始化预览窗口，设置窗口大小和画布"""
+        # 初始化预览窗口，设置窗口大小和画布
         self.region = region
         self.preview_window = tk.Tk()
         self.preview_window.title("eve-tool")
