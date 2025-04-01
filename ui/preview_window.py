@@ -16,12 +16,14 @@ class PreviewWindow:
         self.preview_window = tk.Tk()
         self.preview_window.title("eve-tool")
         # 设置窗口整体透明度（0.8为示例值，范围0-1）
-        self.preview_window.attributes('-alpha', 0.95)
+        self.preview_window.attributes("-alpha", 0.95)
         # 设置窗口置顶
-        self.preview_window.attributes('-topmost', True)
+        self.preview_window.attributes("-topmost", True)
         width = abs(region[2] - region[0])
         height = abs(region[3] - region[1])
-        self.preview_window.geometry(f"{width}x{height}+{window_region[0]}+{window_region[1]}")
+        self.preview_window.geometry(
+            f"{width}x{height}+{window_region[0]}+{window_region[1]}"
+        )
         self.preview_window.overrideredirect(True)
         self.preview_canvas = tk.Canvas(self.preview_window)
         self.preview_canvas.pack(fill=tk.BOTH, expand=True)
@@ -100,10 +102,10 @@ class PreviewWindow:
         # 右键拖动
         self.preview_canvas.bind("<B3-Motion>", self.move)
         # 绑定快捷键“·” 数字1旁边的按键
-        hotkey1 = keyboard.add_hotkey('`', self.handle_center_click)
+        hotkey1 = keyboard.add_hotkey("`", self.handle_center_click)
         self.hotkeys.append(hotkey1)
         # 绑定快捷键“ctrl+alt+r”重新选择监控区域
-        hotkey2 = keyboard.add_hotkey('ctrl+alt+r', self.restart)
+        hotkey2 = keyboard.add_hotkey("ctrl+alt+r", self.restart)
         self.hotkeys.append(hotkey2)
         self.update_preview()
         self.preview_window.mainloop()
