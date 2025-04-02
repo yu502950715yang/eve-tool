@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 DEFAULT_SETTINGS = {
     "monitor_region": [0,0,0,0]
@@ -19,8 +20,13 @@ class Settings:
         return cls._instance
 
     def get_resource_path(self, relative_path):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        config_dir = os.path.normpath(os.path.join(base_dir, "../config"))
+        if getattr(sys, 'frozen', False):
+            base_dir = os.path.dirname(sys.executable)
+            config_dir = os.path.normpath(os.path.join(base_dir, "config"))
+        else:
+            # 开发环境
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            config_dir = os.path.normpath(os.path.join(base_dir, "../config"))
         return os.path.join(config_dir, relative_path)
 
     def get_monitor_region(self):
@@ -40,6 +46,8 @@ class Settings:
         """保存监控区域的设置"""
         self.settings["monitor_region"] = monitor_region
         setting_path = self.get_resource_path("settings.json")
+        # 确保目录存在
+        os.makedirs(os.path.dirname(setting_path), exist_ok=True)
         try:
             with open(setting_path, "w", encoding="utf-8") as config_file:
                 json.dump(self.settings, config_file, indent=4)
