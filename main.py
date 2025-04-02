@@ -1,5 +1,5 @@
 from ui.preview_window import PreviewWindow
-from utils.screen_util import ScreenRegionSelector
+from ui.screen_region_selector import ScreenRegionSelector
 
 
 def get_selected_region(window_region=None):
