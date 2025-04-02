@@ -32,6 +32,7 @@ class PreviewWindow:
         self.restart_flag = False
         self.is_destroyed = False  # 标志窗口是否已经被销毁
         self.hotkeys = []  # 用于存储绑定的快捷键
+        self.enemy_alarm_open = False  # 敌对报警开关
 
     @staticmethod
     def handle_click(x, y):
@@ -43,6 +44,9 @@ class PreviewWindow:
 
     def close(self, event=None):
         """关闭预览窗口"""
+        if self.enemy_alarm_open:
+            self.stop_enemy_alarm()
+
         if not self.is_destroyed:
             self.preview_window.destroy()
             self.is_destroyed = True
@@ -94,6 +98,33 @@ class PreviewWindow:
 
     def start(self):
         """启动预览窗口，绑定事件并开始更新循环"""
+        self.bind_hotkeys()
+        self.update_preview()
+        self.preview_window.mainloop()
+
+    def restart(self):
+        """重新选择监控区域"""
+        self.restart_flag = True
+        window_region = [self.preview_window.winfo_x(), self.preview_window.winfo_y()]
+        self.preview_window.after(0, lambda: self.restart_callback(window_region))
+        self.close()
+
+    def start_enemy_alarm(self):
+        """开启敌对报警"""
+        if self.enemy_alarm_open:  # 如果已经开启，则不执行任何操作
+            return
+        self.enemy_alarm_open = True
+        print("开始敌对报警")
+
+    def stop_enemy_alarm(self):
+        """关闭敌对报警"""
+        if not self.enemy_alarm_open:  # 如果已经关闭，则不执行任何操作
+            return
+        self.enemy_alarm_open = False
+        print("关闭敌对报警")
+
+    def bind_hotkeys(self):
+        """绑定快捷键"""
         # 左键点击
         self.preview_canvas.bind("<Button-1>", self.on_canvas_click)
         # 右键双击
@@ -108,12 +139,9 @@ class PreviewWindow:
         # 绑定快捷键“ctrl+alt+r”重新选择监控区域
         hotkey2 = keyboard.add_hotkey("ctrl+alt+r", self.restart)
         self.hotkeys.append(hotkey2)
-        self.update_preview()
-        self.preview_window.mainloop()
-
-    def restart(self):
-        """重新选择监控区域"""
-        self.restart_flag = True
-        window_region = [self.preview_window.winfo_x(), self.preview_window.winfo_y()]
-        self.preview_window.after(0, lambda: self.restart_callback(window_region))
-        self.close()
+        # 开启敌对报警
+        hotkey3 = keyboard.add_hotkey("ctrl+alt+1", self.start_enemy_alarm)
+        self.hotkeys.append(hotkey3)
+        # 关闭敌对报警
+        hotkey4 = keyboard.add_hotkey("ctrl+alt+2", self.stop_enemy_alarm)
+        self.hotkeys.append(hotkey4)

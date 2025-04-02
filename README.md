@@ -36,4 +36,4 @@ pip install -r requirements.txt
 
 # 打包命令
 
-pyinstaller --onefile --windowed --distpath ./dist --name eve_tool --icon ./images/icon.ico main.py 
+pyinstaller --onefile --windowed --distpath ./dist --name eve_tool --icon ./img/icon.ico main.py 
