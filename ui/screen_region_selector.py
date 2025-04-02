@@ -48,5 +48,5 @@ class ScreenRegionSelector:
         self.root.attributes("-alpha", 0.3)
         self.root.mainloop()
         if self.start_x is not None and self.end_x is not None:
-            return self.start_x, self.start_y, self.end_x, self.end_y
+            return [self.start_x, self.start_y, self.end_x, self.end_y]
         return None

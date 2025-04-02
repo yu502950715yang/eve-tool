@@ -73,7 +73,7 @@ class PreviewWindow:
 
     def update_preview(self):
         """更新预览窗口中的截图"""
-        if self.restart_flag:
+        if self.restart_flag or self.is_destroyed:
             return
         try:
             screenshot = ImageGrab.grab(bbox=self.region)
