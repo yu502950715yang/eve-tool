@@ -6,6 +6,11 @@ DEFAULT_SETTINGS = {
     "monitor_region": [0,0,0,0]
 }
 
+# 配置文件路径
+CONFIG_PATH = 'config'
+# 开发环境配置路径
+DEV_CONFIG_PATH = '../config'
+
 
 class Settings:
 
@@ -22,11 +27,11 @@ class Settings:
     def get_resource_path(self, relative_path):
         if getattr(sys, 'frozen', False):
             base_dir = os.path.dirname(sys.executable)
-            config_dir = os.path.normpath(os.path.join(base_dir, "config"))
+            config_dir = os.path.normpath(os.path.join(base_dir, CONFIG_PATH))
         else:
             # 开发环境
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            config_dir = os.path.normpath(os.path.join(base_dir, "../config"))
+            config_dir = os.path.normpath(os.path.join(base_dir, DEV_CONFIG_PATH))
         return os.path.join(config_dir, relative_path)
 
     def get_monitor_region(self):
