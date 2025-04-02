@@ -46,7 +46,7 @@ class Settings:
         """保存监控区域的设置"""
         self.settings["monitor_region"] = monitor_region
         setting_path = self.get_resource_path("settings.json")
-        # 确保目录存在
+        # 如果不存在创建一个
         os.makedirs(os.path.dirname(setting_path), exist_ok=True)
         try:
             with open(setting_path, "w", encoding="utf-8") as config_file:
