@@ -6,7 +6,11 @@ settings = Settings()
 
 
 def get_selected_region(window_region=None, fist_run=True):
-    """获取用户选择的屏幕区域，并启动预览窗口"""
+    """获取用户选择的屏幕区域，并启动预览窗口
+    Args:
+        window_region: 窗口区域，重新选择区域时使用，默认为None
+        fist_run: 是否是第一次运行，如果是第一次运行，则从配置文件中读取监控区域
+    """
     region = None
     if fist_run:
         print("第一次运行，请选择监控区域")
@@ -33,6 +37,7 @@ def get_selected_region(window_region=None, fist_run=True):
     else:
         print("没有选择区域")
 
+
 def select_region():
     """选择屏幕区域"""
     selector = ScreenRegionSelector()
@@ -42,8 +47,10 @@ def select_region():
 
 
 def restart_preview(window_region):
-    """重新选择监控区域"""
-    print("重新选择区域")
+    """重新选择监控区域
+    Args:
+        window_region: 窗口所在区域
+    """
     get_selected_region(window_region, False)
 
 
