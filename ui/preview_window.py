@@ -82,8 +82,8 @@ class PreviewWindow:
         self.preview_image = ImageTk.PhotoImage(screenshot)
         self.preview_canvas.create_image(0, 0, anchor=tk.NW, image=self.preview_image)
         self.preview_window.update()
-        # 每50毫秒更新预览窗口
-        self.preview_window.after(50, self.update_preview)
+        # 每100毫秒更新预览窗口
+        self.preview_window.after(100, self.update_preview)
 
     def on_canvas_click(self, event):
         """处理画布点击事件，计算并输出点击的屏幕坐标"""
