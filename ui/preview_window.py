@@ -16,7 +16,7 @@ class PreviewWindow:
         self.preview_window = tk.Tk()
         self.preview_window.title("eve-tool")
         # 设置窗口整体透明度（0.8为示例值，范围0-1）
-        self.preview_window.attributes("-alpha", 0.95)
+        self.preview_window.attributes("-alpha", 0.7)
         # 设置窗口置顶
         self.preview_window.attributes("-topmost", True)
         width = abs(region[2] - region[0])
@@ -27,6 +27,7 @@ class PreviewWindow:
         self.preview_window.overrideredirect(True)
         self.preview_canvas = tk.Canvas(self.preview_window)
         self.preview_canvas.pack(fill=tk.BOTH, expand=True)
+        self.preview_canvas.configure(highlightthickness=0, bd=0)
         self.preview_image = None
         self.restart_flag = False
         self.is_destroyed = False  # 标志窗口是否已经被销毁

@@ -3,7 +3,7 @@ from turtle import width
 import win32gui
 
 
-def get_window_region(window_title):
+def get_window_rect(window_title):
     """获取指定窗口的坐标和尺寸"""
     hwnd = win32gui.FindWindow(None, window_title)
     if hwnd:
