@@ -2,14 +2,12 @@ import json
 import os
 import sys
 
-DEFAULT_SETTINGS = {
-    "monitor_region": [0,0,0,0]
-}
+DEFAULT_SETTINGS = {"monitor_region": [0, 0, 0, 0]}
 
 # 配置文件路径
-CONFIG_PATH = 'config'
+CONFIG_PATH = "config"
 # 开发环境配置路径
-DEV_CONFIG_PATH = '../config'
+DEV_CONFIG_PATH = "../config"
 
 
 class Settings:
@@ -25,7 +23,7 @@ class Settings:
         return cls._instance
 
     def get_resource_path(self, relative_path):
-        if getattr(sys, 'frozen', False):
+        if getattr(sys, "frozen", False):
             base_dir = os.path.dirname(sys.executable)
             config_dir = os.path.normpath(os.path.join(base_dir, CONFIG_PATH))
         else:
@@ -57,8 +55,10 @@ class Settings:
             with open(setting_path, "w", encoding="utf-8") as config_file:
                 json.dump(self.settings, config_file, indent=4)
 
-        except Exception as e:  # 更通用的异常捕获
-            print(f"保存配置文件失败 | 路径: {setting_path} | 错误类型: {type(e).__name__} | 详细信息: {str(e)}")
+        except Exception as e:
+            print(
+                f"保存配置文件失败 | 路径: {setting_path} | 错误类型: {type(e).__name__} | 详细信息: {str(e)}"
+            )
 
     def merge_settings_with_defaults(self, settings, defaults=None):
         """Merge the loaded settings with the default settings recursively."""
