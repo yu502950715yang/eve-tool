@@ -9,6 +9,7 @@ from utils.settings import Settings
 
 settings = Settings()
 
+
 class EnemyAlert:
 
     _instance = None
@@ -25,19 +26,56 @@ class EnemyAlert:
         self.is_playing = False
         self.play_lock = threading.Lock()  # 播放声音锁
 
+    def preprocess_template(self, img):
+        # img = cv2.GaussianBlur(img, (3, 3), 0)  # 高斯模糊
+        # img = cv2.equalizeHist(img)             # 直方图均衡化
+        return img
+
+    def preprocess_screenshot(self, img):
+        # img = cv2.GaussianBlur(img, (3, 3), 0)  # 高斯模糊
+        # img = cv2.equalizeHist(img)                  # 直方图均衡化
+        # img = cv2.Canny(img, threshold1=50, threshold2=150)  # 边缘检测
+        return img
+
+    def multi_scale_match(self, template, screenshot, threshold):
+        scales = [0.8, 1.0, 1.2]  # 定义缩放比例
+        for scale in scales:
+            resized_template = cv2.resize(template, (0, 0), fx=scale, fy=scale)
+            """
+            匹配模式
+            模式	                英文全称	        特点	        最佳匹配
+            cv2.TM_SQDIFF	        平方差匹配	        差值越小越好	 最小值
+            cv2.TM_SQDIFF_NORMED	归一化平方差匹配	差值越小越好      最小值
+            cv2.TM_CCORR	        相关性匹配	        值越大越好	    最大值
+            cv2.TM_CCORR_NORMED	    归一化相关性匹配	值越大越好	    最大值
+            cv2.TM_CCOEFF	        相关系数匹配	    值越大越好	    最大值
+            cv2.TM_CCOEFF_NORMED	归一化相关系数匹配	值越大越好	    最大值
+            """
+            result = cv2.matchTemplate(
+                screenshot, resized_template, cv2.TM_CCOEFF_NORMED
+            )
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+            if max_val > threshold:
+                return True, max_val
+            # if min_val < 0.1:
+            #     return True, min_val
+        return False, 0
+
     def load_templates(self):
         """加载模板图片并转为灰度图"""
         template_dir = get_alert_img_path()
-        templates = []
+        templates = {}
         if not os.path.exists(template_dir):
             print(f"警告：模板目录 {template_dir} 不存在")
             return templates
         for filename in os.listdir(template_dir):
             if filename.lower().endswith((".png", ".jpg", ".jpeg")):
                 path = os.path.join(template_dir, filename)
+                # 读取为灰度图
                 img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
                 if img is not None:
-                    templates.append(img)
+                    img = self.preprocess_template(img)
+                    templates[filename] = img
                 else:
                     print(f"无法加载模板图片：{path}")
         return templates
@@ -46,13 +84,16 @@ class EnemyAlert:
         """检查是否有敌人"""
         # 转换为OpenCV格式并灰度化
         screenshot_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+        # 对截图和模板进行高斯模糊和直方图均衡化
         gray_screenshot = cv2.cvtColor(screenshot_cv, cv2.COLOR_BGR2GRAY)
+        gray_screenshot = self.preprocess_screenshot(gray_screenshot)
         temp_play_flag = False
-        for template in self.templates:
-            result = cv2.matchTemplate(gray_screenshot, template, cv2.TM_CCOEFF_NORMED)
-            _, max_val, _, max_loc = cv2.minMaxLoc(result)
-            if max_val > self.match_threshold:
-                print(f"检测到敌人，匹配值：{max_val}")
+        for key, template in self.templates.items():
+            match_found, max_val = self.multi_scale_match(
+                template, gray_screenshot, self.match_threshold
+            )
+            if match_found:
+                print(f"文件名：{key}，匹配值：{max_val}")
                 temp_play_flag = True
                 break
         if temp_play_flag:
@@ -64,6 +105,7 @@ class EnemyAlert:
 
     def play_alert_sound(self):
         """非阻塞播放且避免重复播放"""
+
         def _play():
             try:
                 with self.play_lock:
@@ -72,6 +114,7 @@ class EnemyAlert:
                     self.is_playing = True
 
                 import winsound
+
                 print("播放预警")
                 winsound.PlaySound(
                     get_alert_sound_path(), winsound.SND_FILENAME | winsound.SND_ASYNC
@@ -81,6 +124,7 @@ class EnemyAlert:
             finally:
                 with self.play_lock:
                     self.is_playing = False
+
         # 仅在非播放状态时启动新线程
         with self.play_lock:
             if not self.is_playing:
