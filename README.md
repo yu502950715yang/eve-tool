@@ -33,6 +33,8 @@
 
 8.ctrl+alt+1 开启预警功能 crtl+alt+2 关闭预警功能 (预警模板图片可以自定义，修改imgs/alert目录中的图片即可)
 
+9.ctrl_alt+m 隐藏窗口 ctrl+alt+n 显示窗口
+
 # 安装依赖
 
 pip install -r requirements.txt
