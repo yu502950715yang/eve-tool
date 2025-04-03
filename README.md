@@ -38,6 +38,4 @@ pip install -r requirements.txt
 
 # 打包命令
 
-pyinstaller --onefile --windowed --distpath ./dist --name eve_tool --icon ./imgs/icon.ico --add-data "config/*;config" main.py 
-
-pyinstaller --onedir --windowed --distpath ./dist --name eve_tool --icon ./imgs/icon.ico --add-data "config/*;config" main.py
+运行build.py 文件自动打包
