@@ -1,7 +1,8 @@
 import os
+from threading import Thread
+import threading
 import cv2
 import numpy as np
-from playsound import playsound
 
 from utils.path_util import get_alert_img_path, get_alert_sound_path
 
@@ -19,7 +20,8 @@ class EnemyAlert:
     def __init__(self):
         self.templates = self.load_templates()
         self.match_threshold = 0.8  # 匹配阈值
-        self.play_sound = False
+        self.is_playing = False
+        self.play_lock = threading.Lock()  # 播放声音锁
 
     def load_templates(self):
         """加载模板图片并转为灰度图"""
@@ -52,15 +54,32 @@ class EnemyAlert:
                 temp_play_flag = True
                 break
         if temp_play_flag:
-            print("检测到敌人播放声音")
+            print("检测到敌人")
             self.play_alert_sound()
         else:
-            self.play_sound = False
-            print("没有检测到敌人,关闭声音")
+            self.is_playing = False
+            print("没有检测到敌人")
 
-    async def play_alert_sound(self):
-        """播放警报声音"""
-        try:
-            await playsound(get_alert_sound_path())
-        except Exception as e:
-            print(f"播放声音失败: {e}")
+    def play_alert_sound(self):
+        """非阻塞播放且避免重复播放"""
+        def _play():
+            try:
+                with self.play_lock:
+                    if self.is_playing:
+                        return
+                    self.is_playing = True
+
+                import winsound
+                print("播放预警")
+                winsound.PlaySound(
+                    get_alert_sound_path(), winsound.SND_FILENAME | winsound.SND_ASYNC
+                )
+            except Exception as e:
+                print(f"播放失败：{str(e)}")
+            finally:
+                with self.play_lock:
+                    self.is_playing = False
+        # 仅在非播放状态时启动新线程
+        with self.play_lock:
+            if not self.is_playing:
+                Thread(target=_play, daemon=True).start()

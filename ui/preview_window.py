@@ -166,3 +166,9 @@ class PreviewWindow:
         # 关闭敌对报警
         hotkey4 = keyboard.add_hotkey("ctrl+alt+2", self.stop_enemy_alarm)
         self.hotkeys.append(hotkey4)
+        # 最小化窗口
+        hotkey5 = keyboard.add_hotkey("ctrl+alt+m", self.preview_window.withdraw)
+        self.hotkeys.append(hotkey5)
+        # 最小化还原
+        hotkey6 = keyboard.add_hotkey("ctrl+alt+n", self.preview_window.deiconify)
+        self.hotkeys.append(hotkey6)
