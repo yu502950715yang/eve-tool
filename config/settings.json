@@ -1,8 +1,9 @@
 {
     "monitor_region": [
-        435,
-        384,
+        441,
+        424,
         784,
-        487
-    ]
+        524
+    ],
+    "enemy_match_threshold": 0.8
 }

@@ -5,7 +5,9 @@ import cv2
 import numpy as np
 
 from utils.path_util import get_alert_img_path, get_alert_sound_path
+from utils.settings import Settings
 
+settings = Settings()
 
 class EnemyAlert:
 
@@ -19,7 +21,7 @@ class EnemyAlert:
 
     def __init__(self):
         self.templates = self.load_templates()
-        self.match_threshold = 0.85  # 匹配阈值
+        self.match_threshold = settings.get_enemy_match_threshold()  # 匹配阈值
         self.is_playing = False
         self.play_lock = threading.Lock()  # 播放声音锁
 

@@ -3,7 +3,7 @@ import os
 
 from utils.path_util import get_config_path
 
-DEFAULT_SETTINGS = {"monitor_region": [0, 0, 0, 0]}
+DEFAULT_SETTINGS = {"monitor_region": [0, 0, 0, 0], "enemy_match_threshold": 0.8}
 
 
 class Settings:
@@ -17,19 +17,17 @@ class Settings:
             cls._instance = super().__new__(cls)
             cls._instance.settings = DEFAULT_SETTINGS
         return cls._instance
+    
+    def __init__(self):
+        self.settings = self.read_local_config()
 
     def get_monitor_region(self):
         """获取监控区域的设置"""
-        setting_path = get_config_path("settings.json")
-        print(f"读取配置文件: {setting_path}")
-        try:
-            with open(setting_path, encoding="utf-8") as config_file:
-                settings = json.load(config_file)
-                settings = self.merge_settings_with_defaults(settings)
-                self.settings = settings
-        except (FileNotFoundError, json.JSONDecodeError):
-            settings = self.settings
-        return settings.get("monitor_region")
+        return self.settings.get("monitor_region")
+    
+    def get_enemy_match_threshold(self):
+        """获取匹配阈值的设置"""
+        return self.settings.get("enemy_match_threshold")
 
     def save_monitor_region(self, monitor_region):
         """保存监控区域的设置"""
@@ -64,3 +62,15 @@ class Settings:
                 # Fehlende Schlüssel mit Standardwerten ergänzen
                 merged_settings[key] = value
         return merged_settings
+
+    def read_local_config(self):
+        """读取本地配置文件"""
+        setting_path = get_config_path("settings.json")
+        print(f"读取配置文件: {setting_path}")
+        try:
+            with open(setting_path, encoding="utf-8") as config_file:
+                settings = json.load(config_file)
+                settings = self.merge_settings_with_defaults(settings)
+        except:
+            settings = DEFAULT_SETTINGS
+        return settings
