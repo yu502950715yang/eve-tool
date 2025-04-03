@@ -71,8 +71,7 @@ class EnemyAlert:
         for filename in os.listdir(template_dir):
             if filename.lower().endswith((".png", ".jpg", ".jpeg")):
                 path = os.path.join(template_dir, filename)
-                # 读取为灰度图
-                img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+                img = cv2.imread(path)
                 if img is not None:
                     img = self.preprocess_template(img)
                     templates[filename] = img
@@ -82,15 +81,14 @@ class EnemyAlert:
 
     def check_enemy(self, screenshot):
         """检查是否有敌人"""
-        # 转换为OpenCV格式并灰度化
+        # 转换为OpenCV格式
         screenshot_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-        # 对截图和模板进行高斯模糊和直方图均衡化
-        gray_screenshot = cv2.cvtColor(screenshot_cv, cv2.COLOR_BGR2GRAY)
-        gray_screenshot = self.preprocess_screenshot(gray_screenshot)
+        # color_screenshot = cv2.cvtColor(screenshot_cv, cv2.COLOR_RGB2BGR)
+        color_screenshot = self.preprocess_screenshot(screenshot_cv)
         temp_play_flag = False
         for key, template in self.templates.items():
             match_found, max_val = self.multi_scale_match(
-                template, gray_screenshot, self.match_threshold
+                template, color_screenshot, self.match_threshold
             )
             if match_found:
                 print(f"文件名：{key}，匹配值：{max_val}")
