@@ -19,7 +19,7 @@ class EnemyAlert:
 
     def __init__(self):
         self.templates = self.load_templates()
-        self.match_threshold = 0.8  # 匹配阈值
+        self.match_threshold = 0.85  # 匹配阈值
         self.is_playing = False
         self.play_lock = threading.Lock()  # 播放声音锁
 
