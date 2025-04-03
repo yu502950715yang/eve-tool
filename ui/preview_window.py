@@ -131,7 +131,8 @@ class PreviewWindow:
 
     def check_enemy(self):
         """检测是否有敌对"""
-        if not self.enemy_alarm_open and not self.is_destroyed and self.restart_flag:
+        print(f"========检测是否有敌对========{self.enemy_alarm_open}")
+        if not self.enemy_alarm_open or self.restart_flag:
             return
         try:
             screenshot = ImageGrab.grab(bbox=self.region)
