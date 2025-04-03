@@ -4,6 +4,8 @@ import keyboard
 import pyautogui
 from PIL import ImageGrab, ImageTk
 
+from service.enemy_alert import EnemyAlert
+
 
 class PreviewWindow:
     def __init__(self, region, restart_callback, window_region=None):
@@ -33,6 +35,7 @@ class PreviewWindow:
         self.is_destroyed = False  # 标志窗口是否已经被销毁
         self.hotkeys = []  # 用于存储绑定的快捷键
         self.enemy_alarm_open = False  # 敌对报警开关
+        self.enemy_alert = EnemyAlert()
 
     @staticmethod
     def handle_click(x, y):
@@ -115,6 +118,9 @@ class PreviewWindow:
             return
         self.enemy_alarm_open = True
         print("开始敌对报警")
+        if self.enemy_alert.templates:
+            self.enemy_alert.load_templates()
+        self.check_enemy()
 
     def stop_enemy_alarm(self):
         """关闭敌对报警"""
@@ -122,6 +128,21 @@ class PreviewWindow:
             return
         self.enemy_alarm_open = False
         print("关闭敌对报警")
+
+    def check_enemy(self):
+        """检测是否有敌对"""
+        if not self.enemy_alarm_open and not self.is_destroyed and self.restart_flag:
+            return
+        try:
+            screenshot = ImageGrab.grab(bbox=self.region)
+            if screenshot.size == (0, 0):  # 检查无效截图
+                raise Exception("Invalid screenshot")
+        except Exception as e:
+            print(f"截图失败: {e}")
+            self.preview_window.after(3000, self.check_enemy)
+            return
+        self.enemy_alert.check_enemy(screenshot)
+        self.preview_window.after(2000, self.check_enemy)
 
     def bind_hotkeys(self):
         """绑定快捷键"""

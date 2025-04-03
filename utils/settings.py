@@ -1,13 +1,9 @@
 import json
 import os
-import sys
+
+from utils.path_util import get_config_path
 
 DEFAULT_SETTINGS = {"monitor_region": [0, 0, 0, 0]}
-
-# 配置文件路径
-CONFIG_PATH = "config"
-# 开发环境配置路径
-DEV_CONFIG_PATH = "../config"
 
 
 class Settings:
@@ -22,19 +18,9 @@ class Settings:
             cls._instance.settings = DEFAULT_SETTINGS
         return cls._instance
 
-    def get_resource_path(self, relative_path):
-        if getattr(sys, "frozen", False):
-            base_dir = os.path.dirname(sys.executable)
-            config_dir = os.path.normpath(os.path.join(base_dir, CONFIG_PATH))
-        else:
-            # 开发环境
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            config_dir = os.path.normpath(os.path.join(base_dir, DEV_CONFIG_PATH))
-        return os.path.join(config_dir, relative_path)
-
     def get_monitor_region(self):
         """获取监控区域的设置"""
-        setting_path = self.get_resource_path("settings.json")
+        setting_path = get_config_path("settings.json")
         print(f"读取配置文件: {setting_path}")
         try:
             with open(setting_path, encoding="utf-8") as config_file:
@@ -48,7 +34,7 @@ class Settings:
     def save_monitor_region(self, monitor_region):
         """保存监控区域的设置"""
         self.settings["monitor_region"] = monitor_region
-        setting_path = self.get_resource_path("settings.json")
+        setting_path = get_config_path("settings.json")
         # 如果不存在创建一个
         os.makedirs(os.path.dirname(setting_path), exist_ok=True)
         try:
