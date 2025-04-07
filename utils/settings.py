@@ -11,6 +11,7 @@ class Settings:
 
     # 单例模式
     _instance = None
+    _initialized = False
 
     def __new__(cls):
         """重写 __new__ 方法实现单例"""
@@ -20,7 +21,9 @@ class Settings:
         return cls._instance
     
     def __init__(self):
-        self.settings = self.read_local_config()
+        if not self._initialized:
+            self.settings = self.read_local_config()
+            self._initialized = True
 
     def get_monitor_region(self):
         """获取监控区域的设置"""
