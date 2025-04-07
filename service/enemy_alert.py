@@ -65,7 +65,7 @@ class EnemyAlert:
         return False, 0
 
     def load_templates(self):
-        """加载模板图片并转为灰度图"""
+        """加载模板图片"""
         template_dir = get_alert_img_path()
         templates = {}
         if not os.path.exists(template_dir):
