@@ -3,6 +3,7 @@ import os
 
 from utils.path_util import get_config_path
 
+# 默认配置
 DEFAULT_SETTINGS = {"monitor_region": [0, 0, 0, 0], "enemy_match_threshold": 0.83}
 
 
