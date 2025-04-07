@@ -41,7 +41,7 @@ class EnemyAlert:
         # img = cv2.Canny(img, threshold1=50, threshold2=150)  # 边缘检测
         return img
 
-    def multi_scale_match(self, template, screenshot, threshold):
+    def multi_scale_match(self, template, screenshot):
         scales = [0.8, 1.0, 1.2]  # 定义缩放比例
         for scale in scales:
             resized_template = cv2.resize(template, (0, 0), fx=scale, fy=scale)
@@ -61,7 +61,7 @@ class EnemyAlert:
             result_r = cv2.matchTemplate(screenshot[:, :, 2], resized_template[:, :, 2], cv2.TM_CCOEFF_NORMED)
             result = (result_b + result_g + result_r) / 3.0
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-            if max_val > threshold:
+            if max_val > self.match_threshold:
                 return True, max_val
             # if min_val < 0.1:
             #     return True, min_val
@@ -93,9 +93,7 @@ class EnemyAlert:
         color_screenshot = self.preprocess_screenshot(screenshot_cv)
         temp_play_flag = False
         for key, template in self.templates.items():
-            match_found, max_val = self.multi_scale_match(
-                template, color_screenshot, self.match_threshold
-            )
+            match_found, max_val = self.multi_scale_match(template, color_screenshot)
             if match_found:
                 print(f"文件名：{key}，匹配值：{max_val}")
                 temp_play_flag = True
