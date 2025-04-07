@@ -41,4 +41,15 @@ pip install -r requirements.txt
 
 # 打包命令
 
-运行build.py 文件自动打包
+运行 build.py 文件自动打包
+
+# 配置文件说明
+1.config.json 可自行修改
+```json
+{
+    // 监控区域坐标 [左下角x,左下角y,右上角x,右上角y]
+    "monitor_region": [ 0, 0, 0, 0],
+    // 预警图片匹配阈值
+    "enemy_match_threshold": 0.8
+}
+```

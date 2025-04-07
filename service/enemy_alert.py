@@ -3,6 +3,8 @@ from threading import Thread
 import threading
 import cv2
 import numpy as np
+import winsound
+
 
 from utils.path_util import get_alert_img_path, get_alert_sound_path
 from utils.settings import Settings
@@ -104,16 +106,12 @@ class EnemyAlert:
 
     def play_alert_sound(self):
         """非阻塞播放且避免重复播放"""
-
         def _play():
             try:
                 with self.play_lock:
                     if self.is_playing:
                         return
                     self.is_playing = True
-
-                import winsound
-
                 print("播放预警")
                 winsound.PlaySound(
                     get_alert_sound_path(), winsound.SND_FILENAME | winsound.SND_ASYNC
@@ -123,7 +121,6 @@ class EnemyAlert:
             finally:
                 with self.play_lock:
                     self.is_playing = False
-
         # 仅在非播放状态时启动新线程
         with self.play_lock:
             if not self.is_playing:
