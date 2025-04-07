@@ -15,6 +15,7 @@ settings = Settings()
 class EnemyAlert:
 
     _instance = None
+    _initialized = False
 
     def __new__(cls):
         """重写 __new__ 方法实现单例"""
@@ -23,10 +24,12 @@ class EnemyAlert:
         return cls._instance
 
     def __init__(self):
-        self.templates = self.load_templates()
-        self.match_threshold = settings.get_enemy_match_threshold()  # 匹配阈值
-        self.is_playing = False
-        self.play_lock = threading.Lock()  # 播放声音锁
+        if not self._initialized:
+            self.templates = self.load_templates()
+            self.match_threshold = settings.get_enemy_match_threshold()  # 匹配阈值
+            self.is_playing = False
+            self.play_lock = threading.Lock()  # 播放声音锁
+            self._initialized = True
 
     def preprocess_template(self, img):
         # img = cv2.GaussianBlur(img, (3, 3), 0)  # 高斯模糊
