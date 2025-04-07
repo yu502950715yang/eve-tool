@@ -32,8 +32,7 @@ class EnemyAlert:
         return img
 
     def preprocess_screenshot(self, img):
-        # img = cv2.GaussianBlur(img, (3, 3), 0)  # 高斯模糊
-        # img = cv2.equalizeHist(img)                  # 直方图均衡化
+        img = cv2.GaussianBlur(img, (1, 1), 0)  # 高斯模糊
         # img = cv2.Canny(img, threshold1=50, threshold2=150)  # 边缘检测
         return img
 
@@ -51,9 +50,11 @@ class EnemyAlert:
             cv2.TM_CCOEFF	        相关系数匹配	    值越大越好	    最大值
             cv2.TM_CCOEFF_NORMED	归一化相关系数匹配	值越大越好	    最大值
             """
-            result = cv2.matchTemplate(
-                screenshot, resized_template, cv2.TM_CCOEFF_NORMED
-            )
+             # 对每个通道分别进行匹配
+            result_b = cv2.matchTemplate(screenshot[:, :, 0], resized_template[:, :, 0], cv2.TM_CCOEFF_NORMED)
+            result_g = cv2.matchTemplate(screenshot[:, :, 1], resized_template[:, :, 1], cv2.TM_CCOEFF_NORMED)
+            result_r = cv2.matchTemplate(screenshot[:, :, 2], resized_template[:, :, 2], cv2.TM_CCOEFF_NORMED)
+            result = (result_b + result_g + result_r) / 3.0
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
             if max_val > threshold:
                 return True, max_val
