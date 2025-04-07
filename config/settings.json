@@ -5,5 +5,5 @@
         784,
         524
     ],
-    "enemy_match_threshold": 0.83
+    "enemy_match_threshold": 0.1
 }

@@ -56,15 +56,15 @@ class EnemyAlert:
             cv2.TM_CCOEFF_NORMED	归一化相关系数匹配	值越大越好	    最大值
             """
              # 对每个通道分别进行匹配
-            result_b = cv2.matchTemplate(screenshot[:, :, 0], resized_template[:, :, 0], cv2.TM_CCOEFF_NORMED)
-            result_g = cv2.matchTemplate(screenshot[:, :, 1], resized_template[:, :, 1], cv2.TM_CCOEFF_NORMED)
-            result_r = cv2.matchTemplate(screenshot[:, :, 2], resized_template[:, :, 2], cv2.TM_CCOEFF_NORMED)
+            result_b = cv2.matchTemplate(screenshot[:, :, 0], resized_template[:, :, 0], cv2.TM_SQDIFF_NORMED)
+            result_g = cv2.matchTemplate(screenshot[:, :, 1], resized_template[:, :, 1], cv2.TM_SQDIFF_NORMED)
+            result_r = cv2.matchTemplate(screenshot[:, :, 2], resized_template[:, :, 2], cv2.TM_SQDIFF_NORMED)
             result = (result_b + result_g + result_r) / 3.0
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-            if max_val > self.match_threshold:
-                return True, max_val
-            # if min_val < 0.1:
-            #     return True, min_val
+            # if max_val > self.match_threshold:
+            #     return True, max_val
+            if min_val < self.match_threshold:
+                return True, min_val
         return False, 0
 
     def load_templates(self):
