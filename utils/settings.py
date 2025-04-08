@@ -44,32 +44,12 @@ class Settings:
     def save_monitor_region(self, monitor_region):
         """保存监控区域的设置"""
         self.settings["monitor_region"] = monitor_region
-        setting_path = get_config_path("settings.json")
-        # 如果不存在创建一个
-        os.makedirs(os.path.dirname(setting_path), exist_ok=True)
-        try:
-            with open(setting_path, "w", encoding="utf-8") as config_file:
-                json.dump(self.settings, config_file, indent=4)
-
-        except Exception as e:
-            print(
-                f"保存配置文件失败 | 路径: {setting_path} | 错误类型: {type(e).__name__} | 详细信息: {str(e)}"
-            )
+        self._save_settings()
     
     def save_windows_region(self, windows_region):
         """保存窗口区域的设置"""
         self.settings["windows_region"] = windows_region
-        setting_path = get_config_path("settings.json")
-         # 如果不存在创建一个
-        os.makedirs(os.path.dirname(setting_path), exist_ok=True)
-        try:
-            with open(setting_path, "w", encoding="utf-8") as config_file:
-                json.dump(self.settings, config_file, indent=4)
-
-        except Exception as e:
-            print(
-                f"保存配置文件失败 | 路径: {setting_path} | 错误类型: {type(e).__name__} | 详细信息: {str(e)}"
-            )
+        self._save_settings()
 
     def merge_settings_with_defaults(self, settings, defaults=None):
         """Merge the loaded settings with the default settings recursively."""
@@ -101,3 +81,17 @@ class Settings:
         except:
             settings = DEFAULT_SETTINGS
         return settings
+
+    def _save_settings(self):
+        """保存配置文件"""
+        setting_path = get_config_path("settings.json")
+         # 如果不存在创建一个
+        os.makedirs(os.path.dirname(setting_path), exist_ok=True)
+        try:
+            with open(setting_path, "w", encoding="utf-8") as config_file:
+                json.dump(self.settings, config_file, indent=4)
+
+        except Exception as e:
+            print(
+                f"保存配置文件失败 | 路径: {setting_path} | 错误类型: {type(e).__name__} | 详细信息: {str(e)}"
+            )
