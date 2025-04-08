@@ -5,5 +5,9 @@
         784,
         524
     ],
-    "enemy_match_threshold": 0.1
+    "enemy_match_threshold": 0.1,
+    "windows_region": [
+        33,
+        161
+    ]
 }

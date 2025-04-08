@@ -55,4 +55,5 @@ def restart_preview(window_region):
 
 
 if __name__ == "__main__":
-    get_selected_region()
+    window_region = settings.get_windows_region()
+    get_selected_region(window_region=window_region)
