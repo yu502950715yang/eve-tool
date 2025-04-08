@@ -2,6 +2,7 @@ import tkinter as tk
 
 import keyboard
 import pyautogui
+import threading
 from PIL import ImageGrab, ImageTk
 
 from service.enemy_alert import EnemyAlert
@@ -18,7 +19,7 @@ class PreviewWindow:
         self.preview_window = tk.Tk()
         self.preview_window.title("eve-tool")
         # 设置窗口整体透明度（0.8为示例值，范围0-1）
-        self.preview_window.attributes("-alpha", 0.7)
+        self.preview_window.attributes("-alpha", 0.71)
         # 设置窗口置顶
         self.preview_window.attributes("-topmost", True)
         width = abs(region[2] - region[0])
@@ -36,6 +37,36 @@ class PreviewWindow:
         self.hotkeys = []  # 用于存储绑定的快捷键
         self.enemy_alarm_open = False  # 敌对报警开关
         self.enemy_alert = EnemyAlert()
+        # 创建右键菜单
+        self.context_menu = tk.Menu(self.preview_window, tearoff=0)
+        self.create_context_menu()
+
+    def create_context_menu(self):
+        """创建右键菜单"""
+        self.context_menu.add_command(label="重新选择区域", command=self.restart)
+        self.context_menu.add_command(
+            label="开启敌对报警", command=self.toggle_enemy_alarm
+        )
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label="退出", command=self.close)
+
+    def show_context_menu(self, event):
+        """显示右键菜单"""
+        current_label = "关闭敌对报警" if self.enemy_alarm_open else "开启敌对报警"
+        self.context_menu.entryconfig(1, label=current_label)
+        # 显示菜单并强制获取焦点
+        self.context_menu.post(event.x_root, event.y_root)
+        self.context_menu.focus_force()
+
+    def toggle_enemy_alarm(self):
+        """切换敌对报警状态"""
+        print("切换敌对报警状态")
+        if self.enemy_alarm_open:
+            self.stop_enemy_alarm()
+            self.context_menu.entryconfig(1, label="开启敌对报警")
+        else:
+            self.start_enemy_alarm()
+            self.context_menu.entryconfig(1, label="关闭敌对报警")
 
     @staticmethod
     def handle_click(x, y):
@@ -78,19 +109,24 @@ class PreviewWindow:
         """更新预览窗口中的截图"""
         if self.restart_flag or self.is_destroyed:
             return
-        try:
-            screenshot = ImageGrab.grab(bbox=self.region)
-            if screenshot.size == (0, 0):  # 检查无效截图
-                raise Exception("Invalid screenshot")
-        except Exception as e:
-            print(f"截图失败: {e}")
-            self.preview_window.after(1000, self.update_preview)  # 1秒后重试
-            return
-        self.preview_image = ImageTk.PhotoImage(screenshot)
-        self.preview_canvas.create_image(0, 0, anchor=tk.NW, image=self.preview_image)
-        self.preview_window.update()
-        # 每100毫秒更新预览窗口
+        def capture_screenshot():
+            try:
+                screenshot = ImageGrab.grab(bbox=self.region)
+                if screenshot.size == (0, 0):  # 检查无效截图
+                    raise Exception("Invalid screenshot")
+                # 在主线程中更新画布
+                self.preview_window.after(0, lambda: self.update_canvas(screenshot))
+            except Exception as e:
+                print(f"截图失败: {e}")
+                self.preview_window.after(1000, self.update_preview)  # 1秒后重试
+        threading.Thread(target=capture_screenshot, daemon=True).start()
         self.preview_window.after(100, self.update_preview)
+
+    def update_canvas(self, screenshot):
+        """在主线程中更新画布"""
+        self.preview_image = ImageTk.PhotoImage(screenshot)
+        self.preview_canvas.delete("all")  # 清除之前的图像，避免叠加
+        self.preview_canvas.create_image(0, 0, anchor=tk.NW, image=self.preview_image)
 
     def on_canvas_click(self, event):
         """处理画布点击事件，计算并输出点击的屏幕坐标"""
@@ -110,21 +146,19 @@ class PreviewWindow:
         self.restart_flag = True
         window_region = [self.preview_window.winfo_x(), self.preview_window.winfo_y()]
         self.preview_window.after(0, lambda: self.restart_callback(window_region))
-        self.close()
+        self.preview_window.after(100, self.close)  # 关闭当前窗口
 
     def start_enemy_alarm(self):
         """开启敌对报警"""
-        if self.enemy_alarm_open:  # 如果已经开启，则不执行任何操作
+        if self.enemy_alarm_open:
             return
         self.enemy_alarm_open = True
         print("开始敌对报警")
-        if self.enemy_alert.templates:
-            self.enemy_alert.load_templates()
         self.check_enemy()
 
     def stop_enemy_alarm(self):
         """关闭敌对报警"""
-        if not self.enemy_alarm_open:  # 如果已经关闭，则不执行任何操作
+        if not self.enemy_alarm_open:
             return
         self.enemy_alarm_open = False
         print("关闭敌对报警")
@@ -147,29 +181,17 @@ class PreviewWindow:
 
     def bind_hotkeys(self):
         """绑定快捷键"""
-        # 左键点击
-        self.preview_canvas.bind("<Button-1>", self.on_canvas_click)
-        # 右键双击
-        self.preview_canvas.bind("<Double-Button-3>", self.close)
-        # 右键按下
-        self.preview_canvas.bind("<ButtonPress-3>", self.on_canvas_press_right)
-        # 右键拖动
-        self.preview_canvas.bind("<B3-Motion>", self.move)
-        # 绑定快捷键“·” 数字1旁边的按键
-        hotkey1 = keyboard.add_hotkey("`", self.handle_center_click)
-        self.hotkeys.append(hotkey1)
-        # 绑定快捷键“ctrl+alt+r”重新选择监控区域
-        hotkey2 = keyboard.add_hotkey("ctrl+alt+r", self.restart)
-        self.hotkeys.append(hotkey2)
-        # 开启敌对报警
-        hotkey3 = keyboard.add_hotkey("ctrl+alt+1", self.start_enemy_alarm)
-        self.hotkeys.append(hotkey3)
-        # 关闭敌对报警
-        hotkey4 = keyboard.add_hotkey("ctrl+alt+2", self.stop_enemy_alarm)
-        self.hotkeys.append(hotkey4)
-        # 最小化窗口
-        hotkey5 = keyboard.add_hotkey("ctrl+alt+m", self.preview_window.withdraw)
-        self.hotkeys.append(hotkey5)
-        # 最小化还原
-        hotkey6 = keyboard.add_hotkey("ctrl+alt+n", self.preview_window.deiconify)
-        self.hotkeys.append(hotkey6)
+        self.preview_canvas.bind("<ButtonPress-1>", self.on_canvas_press_right)
+        self.preview_canvas.bind("<B1-Motion>", self.move)
+        self.preview_canvas.bind("<Button-3>", self.show_context_menu)
+        hotkeys = {
+            "`": self.handle_center_click,  # 快捷键：点击中心点
+            "ctrl+alt+r": self.restart,  # 快捷键：重新选择区域
+            "ctrl+alt+1": self.start_enemy_alarm,  # 快捷键：开启敌对报警
+            "ctrl+alt+2": self.stop_enemy_alarm,  # 快捷键：关闭敌对报警
+            "ctrl+alt+m": self.preview_window.withdraw,  # 快捷键：最小化窗口
+            "ctrl+alt+n": self.preview_window.deiconify,  # 快捷键：恢复窗口
+        }
+        for key, action in hotkeys.items():
+            hotkey = keyboard.add_hotkey(key, action)
+            self.hotkeys.append(hotkey)
