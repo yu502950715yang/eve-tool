@@ -18,8 +18,9 @@ class ScreenRegionSelector:
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
         self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
-        keyboard.add_hotkey("esc", self.root.destroy)
+        self.root.bind("<Escape>", lambda event: self.handle_esc())
         self.rect = None
+        self.root.focus_force()
 
     def on_button_press(self, event):
         """处理鼠标按下事件，记录起始坐标并绘制矩形"""
@@ -45,13 +46,23 @@ class ScreenRegionSelector:
         self.end_y = event.y
         self.root.destroy()
 
+    def handle_esc(self):
+        """处理 Esc 键按下事件"""
+        print("取消选择区域")
+        self.root.destroy()
+
     def select_region(self):
         """启动全屏窗口，允许用户选择屏幕区域，并返回选中的区域坐标"""
+        esc_pressed = False
         while True:
             # 启动全屏窗口
             self.root.attributes("-fullscreen", True)
             self.root.attributes("-alpha", 0.3)
             self.root.mainloop()
+
+            if self.start_x is None or self.start_y is None or self.end_x is None or self.end_y is None:
+                esc_pressed = True
+                break
     
             # 检查是否选择了有效区域
             width = abs(self.end_x - self.start_x)
@@ -64,6 +75,8 @@ class ScreenRegionSelector:
                 self.__init__()
             else:
                 break
-    
+        if esc_pressed:
+            print("用户取消了选择")
+            return None
         # 返回有效区域
         return [self.start_x, self.start_y, self.end_x, self.end_y]

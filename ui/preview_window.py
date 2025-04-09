@@ -91,8 +91,7 @@ class PreviewWindow:
             self.preview_window.destroy()
             self.is_destroyed = True
             # 取消绑定的快捷键
-            for hotkey in self.hotkeys:
-                keyboard.remove_hotkey(hotkey)
+            keyboard.remove_all_hotkeys()
 
     def on_canvas_press_right(self, event):
         """记录右键按下时的初始坐标"""
