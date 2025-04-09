@@ -53,7 +53,7 @@ def select_region():
             and region[2] == 0
             and region[3] == 0
         ): 
-            messagebox.showwarning("未选择监控区域", "未选择监控区域，程序将推出！")
+            messagebox.showwarning("未选择监控区域", "未选择监控区域，程序将退出！")
             exit(0)
     return region
 
