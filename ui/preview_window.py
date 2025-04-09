@@ -42,6 +42,7 @@ class PreviewWindow:
         # 创建右键菜单
         self.context_menu = tk.Menu(self.preview_window, tearoff=0)
         self.create_context_menu()
+        self.preview_window_update_time = 100  # 更新频率
 
     def create_context_menu(self):
         """创建右键菜单"""
@@ -50,6 +51,7 @@ class PreviewWindow:
             label="开启敌对报警", command=self.toggle_enemy_alarm
         )
         self.context_menu.add_separator()
+        self.context_menu.add_command(label="后台运行(ctrl+alt+n重新显示)", command=self.preview_window.withdraw)
         self.context_menu.add_command(label="退出", command=self.close)
 
     def show_context_menu(self, event):
@@ -114,6 +116,7 @@ class PreviewWindow:
         if self.restart_flag or self.is_destroyed:
             return
         def capture_screenshot():
+            error_flag = False
             try:
                 screenshot = ImageGrab.grab(bbox=self.region)
                 if screenshot.size == (0, 0):  # 检查无效截图
@@ -122,9 +125,12 @@ class PreviewWindow:
                 self.preview_window.after(0, lambda: self.update_canvas(screenshot))
             except Exception as e:
                 print(f"截图失败: {e}")
-                self.preview_window.after(1000, self.update_preview)  # 1秒后重试
+                error_flag = True
+            finally:
+                self.preview_window_update_time = 1000 if error_flag else 100
+                
         threading.Thread(target=capture_screenshot, daemon=True).start()
-        self.preview_window.after(100, self.update_preview)
+        self.preview_window.after(self.preview_window_update_time, self.update_preview)
 
     def update_canvas(self, screenshot):
         """在主线程中更新画布"""

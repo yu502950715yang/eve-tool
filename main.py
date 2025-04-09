@@ -17,9 +17,8 @@ def get_selected_region(window_region=None, fist_run=True):
         monitor_region = settings.get_monitor_region()
         print(f"配置文件中的监控区域: {monitor_region}")
         # 判断监控区域的4个坐标是否都为0，如果都为0，则重新选择监控区域
-        if (
-            monitor_region
-            and monitor_region[0] == 0
+        if monitor_region is None or (
+            monitor_region[0] == 0
             and monitor_region[1] == 0
             and monitor_region[2] == 0
             and monitor_region[3] == 0
@@ -42,7 +41,11 @@ def select_region():
     """选择屏幕区域"""
     selector = ScreenRegionSelector()
     region = selector.select_region()
-    settings.save_monitor_region(region)
+    print(f"选择的区域: {region}")
+    if region is not None:
+        settings.save_monitor_region(region)
+    else :
+        region = settings.get_monitor_region()
     return region
 
 
