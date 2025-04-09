@@ -69,10 +69,8 @@ class PreviewWindow:
         print("切换敌对报警状态")
         if self.enemy_alarm_open:
             self.stop_enemy_alarm()
-            self.context_menu.entryconfig(1, label="开启敌对报警")
         else:
             self.start_enemy_alarm()
-            self.context_menu.entryconfig(1, label="关闭敌对报警")
 
     @staticmethod
     def handle_click(x, y):
