@@ -126,3 +126,6 @@ gitversion
 
 # vscode settings
 .vscode
+
+# 配置文件
+config/
