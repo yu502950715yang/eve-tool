@@ -1,3 +1,4 @@
+from tkinter import messagebox
 from ui.preview_window import PreviewWindow
 from ui.screen_region_selector import ScreenRegionSelector
 from utils.settings import Settings
@@ -46,6 +47,14 @@ def select_region():
         settings.save_monitor_region(region)
     else :
         region = settings.get_monitor_region()
+        if region is None or (
+            region[0] == 0
+            and region[1] == 0
+            and region[2] == 0
+            and region[3] == 0
+        ): 
+            messagebox.showwarning("未选择监控区域", "未选择监控区域，程序将推出！")
+            exit(0)
     return region
 
 

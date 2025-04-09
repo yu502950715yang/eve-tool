@@ -8,9 +8,11 @@ from PIL import ImageGrab, ImageTk
 from service.enemy_alert import EnemyAlert
 from utils.settings import Settings
 
-settings = Settings()
-
 class PreviewWindow:
+
+    settings = Settings()
+
+
     def __init__(self, region, restart_callback, window_region=None):
         if window_region is None:
             window_region = [0, 0]
@@ -83,7 +85,7 @@ class PreviewWindow:
     def close(self, event=None):
         """关闭预览窗口"""
         window_region = [self.preview_window.winfo_x(), self.preview_window.winfo_y()]
-        settings.save_windows_region(window_region)
+        self.settings.save_windows_region(window_region)
         if self.enemy_alarm_open:
             self.stop_enemy_alarm()
 
