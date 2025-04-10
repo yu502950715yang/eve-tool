@@ -51,8 +51,7 @@ def select_region():
     else :
         region = settings.get_monitor_region()
         if is_region_empty(region):
-            messagebox.showwarning("未选择监控区域", "未选择监控区域，程序将退出！")
-            exit(0)
+            terminate_with_message("未选择监控区域，程序将退出！")
     return region
 
 
