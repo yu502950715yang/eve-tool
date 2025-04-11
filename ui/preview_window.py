@@ -45,6 +45,7 @@ class PreviewWindow:
         self.context_menu = tk.Menu(self.preview_window, tearoff=0)
         self.create_context_menu()
         self.preview_window_update_time = 100  # 更新频率
+        self.check_enemy_time = 1500 #敌对警报检查频率
 
     def create_context_menu(self):
         """创建右键菜单"""
@@ -177,16 +178,21 @@ class PreviewWindow:
         print(f"========检测是否有敌对========{self.enemy_alarm_open}")
         if not self.enemy_alarm_open or self.restart_flag:
             return
-        try:
-            screenshot = ImageGrab.grab(bbox=self.region)
-            if screenshot.size == (0, 0):  # 检查无效截图
-                raise Exception("Invalid screenshot")
-        except Exception as e:
-            print(f"截图失败: {e}")
-            self.preview_window.after(3000, self.check_enemy)
-            return
-        self.enemy_alert.check_enemy(screenshot)
-        self.preview_window.after(2000, self.check_enemy)
+        def capture_screenshot():
+            error_flag = False
+            try:
+                screenshot = ImageGrab.grab(bbox=self.region)
+                if screenshot.size == (0, 0):  # 检查无效截图
+                    raise Exception("Invalid screenshot")
+                self.enemy_alert.check_enemy(screenshot)
+            except Exception as e:
+                print(f"截图失败: {e}")
+                error_flag = True
+            finally:
+                self.check_enemy_time = 3000 if error_flag else 1500
+                
+        threading.Thread(target=capture_screenshot, daemon=True).start()
+        self.preview_window.after(self.check_enemy_time, self.check_enemy)
 
     def bind_hotkeys(self):
         """绑定快捷键"""
