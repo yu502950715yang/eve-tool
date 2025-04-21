@@ -12,24 +12,17 @@ from utils.settings import Settings
 settings = Settings()
 
 
-class EnemyAlert:
+from utils.singleton import Singleton
 
-    _instance = None
-    _initialized = False
 
-    def __new__(cls):
-        """重写 __new__ 方法实现单例"""
-        if not cls._instance:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+class EnemyAlert(metaclass=Singleton):
+    """使用元类实现的单例模式敌人警报类"""
 
     def __init__(self):
-        if not self._initialized:
-            self.templates = self.load_templates()
-            self.match_threshold = settings.get_enemy_match_threshold()  # 匹配阈值
-            self.is_playing = False
-            self.play_lock = threading.Lock()  # 播放声音锁
-            self._initialized = True
+        self.templates = self.load_templates()
+        self.match_threshold = settings.get_enemy_match_threshold()  # 匹配阈值
+        self.is_playing = False
+        self.play_lock = threading.Lock()  # 播放声音锁
 
     def preprocess_template(self, img):
         # img = cv2.GaussianBlur(img, (3, 3), 0)  # 高斯模糊
