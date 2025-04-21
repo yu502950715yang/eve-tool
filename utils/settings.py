@@ -2,6 +2,7 @@ import json
 import os
 
 from utils.path_util import get_config_path
+from utils.singleton import Singleton
 
 # 默认配置
 DEFAULT_SETTINGS = {
@@ -9,10 +10,6 @@ DEFAULT_SETTINGS = {
     "enemy_match_threshold": 0.1,
     "windows_region": [0, 0],
 }
-
-
-from utils.singleton import Singleton
-
 
 class Settings(metaclass=Singleton):
     """使用元类实现的单例模式设置类"""

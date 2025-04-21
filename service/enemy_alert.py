@@ -5,15 +5,11 @@ import cv2
 import numpy as np
 import winsound
 
-
 from utils.path_util import get_alert_img_path, get_alert_sound_path
 from utils.settings import Settings
-
-settings = Settings()
-
-
 from utils.singleton import Singleton
 
+settings = Settings()
 
 class EnemyAlert(metaclass=Singleton):
     """使用元类实现的单例模式敌人警报类"""
