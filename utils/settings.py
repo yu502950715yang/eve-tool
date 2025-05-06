@@ -13,8 +13,7 @@ DEFAULT_SETTINGS = {
         "triggerHotkey": "Ctrl+Shift+F1",
         "sendKey": "F1",
         "delayBetween": 100,
-        "requireActivation": 1,
-        "windows": ["军用馒头", "隔壁老王", "新建文本文档", "识田间-平台端"]
+        "windows": ["军用馒头", "隔壁老王"]
     }
 }
 
@@ -58,6 +57,10 @@ class Settings(metaclass=Singleton):
     def get_qb_send_key(self):
         """获取qb的发送按键设置"""
         return self.settings["qb"].get("sendKey")
+    
+    def get_qb_delay_between(self):
+        """获取qb的延迟设置"""
+        return self.settings["qb"].get("delayBetween")
 
     def merge_settings_with_defaults(self, settings, defaults=None):
         """Merge the loaded settings with the default settings recursively."""

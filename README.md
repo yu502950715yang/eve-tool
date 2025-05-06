@@ -50,6 +50,17 @@ pip install -r requirements.txt
     // 预警图片匹配阈值
     "enemy_match_threshold": 0.1,
     // 记录监控区域在屏幕上的坐标
-    "windows_region": [0, 0]
+    "windows_region": [0, 0],
+    // 同步器脚本相关配置
+    "qb": {
+        // 触发热键
+        "triggerHotkey": "Ctrl+Shift+F1",
+        // 需要向eve窗口发送的按键
+        "sendKey": "F1",
+        // 触发间隔 毫秒
+        "delayBetween": 100,
+        // 角色名
+        "windows": ["军用馒头", "隔壁老王"]
+    }
 }
 ```

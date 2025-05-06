@@ -39,7 +39,11 @@ def get_matched_windows():
 
 def is_minimized(hwnd):
     """检查窗口是否最小化"""
-    return win32gui.GetWindowPlacement(hwnd)[1] == win32con.SW_SHOWMINIMIZED
+    try: 
+       return win32gui.GetWindowPlacement(hwnd)[1] == win32con.SW_SHOWMINIMIZED
+    except Exception as e:
+        print(f"获取窗口最小化状态失败: {e}")
+        return False
 
 def send_key_to_eve_window(hwnd, key, require_activate):
     """发送按键到指定窗口"""
@@ -57,3 +61,15 @@ def send_key_to_eve_window(hwnd, key, require_activate):
         win32gui.PostMessage(hwnd, win32con.WM_KEYDOWN, key, 0)
         time.sleep(0.05)
         win32gui.PostMessage(hwnd, win32con.WM_KEYUP, key, 0)
+
+def get_window_title(hwnds):
+    """获取窗口标题"""
+    windows_titles = []
+    for hwnd in hwnds:
+        try:
+            title = win32gui.GetWindowText(hwnd)
+            if title:
+                windows_titles.append(title)
+        except Exception as e:
+            print(f"获取窗口标题失败: {e}")
+    return windows_titles

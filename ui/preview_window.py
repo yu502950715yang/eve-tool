@@ -1,4 +1,6 @@
+import time
 import tkinter as tk
+from tkinter import messagebox
 
 import keyboard
 import pyautogui
@@ -6,7 +8,7 @@ import threading
 from PIL import ImageGrab, ImageTk
 
 from service.enemy_alert import EnemyAlert
-from service.sync_script import get_matched_windows, is_minimized, send_key_to_eve_window
+from service.sync_script import get_matched_windows, get_window_title, is_minimized, send_key_to_eve_window
 from utils.settings import Settings
 
 class PreviewWindow:
@@ -210,20 +212,28 @@ class PreviewWindow:
         self.sync_script_open = True
         print("开始同步脚本")
         eve_windows = get_matched_windows()
+        # 间隔时间
+        sleep_time = self.settings.get_qb_delay_between() / 1000
         if eve_windows:
-            print(f"找到匹配窗口: {eve_windows}")
+            eve_windows_title = get_window_title(eve_windows)
+            messagebox.showinfo(
+                "提示", f"找到匹配窗口:\n {'\n '.join(eve_windows_title)}\n\n请按下快捷键: {triggerHotkey}"
+            )
             # 绑定快捷键
-            keyboard.add_hotkey(triggerHotkey, self.send_key, args=(eve_windows,))
+            keyboard.add_hotkey(triggerHotkey, self.send_key, args=(eve_windows, sleep_time, ))
         else:
+            self.sync_script_open = False
+            messagebox.showwarning("警告", "没有找到匹配窗口")
             print("没有找到匹配窗口")
     
-    def send_key(self, eve_windows):
+    def send_key(self, eve_windows, sleep_time):
         """发送按键到匹配窗口"""
         send_key = self.settings.get_qb_send_key()
         for hwnd in eve_windows:
             if not is_minimized(hwnd):
                 send_key_to_eve_window(hwnd, send_key, require_activate=True)
                 print(f"发送按键到窗口: {hwnd}")
+                time.sleep(sleep_time)
             else:
                 print(f"窗口 {hwnd} 已最小化，跳过发送")
         
