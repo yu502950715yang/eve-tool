@@ -6,12 +6,12 @@ import threading
 from PIL import ImageGrab, ImageTk
 
 from service.enemy_alert import EnemyAlert
+from service.sync_script import get_matched_windows, is_minimized, send_key_to_eve_window
 from utils.settings import Settings
 
 class PreviewWindow:
 
     settings = Settings()
-
 
     def __init__(self, region, restart_callback, window_region=None):
         if window_region is None:
@@ -40,6 +40,7 @@ class PreviewWindow:
         self.is_destroyed = False  # 标志窗口是否已经被销毁
         self.hotkeys = []  # 用于存储绑定的快捷键
         self.enemy_alarm_open = False  # 敌对报警开关
+        self.sync_script_open = False  # 同步脚本开关
         self.enemy_alert = EnemyAlert()
         # 创建右键菜单
         self.context_menu = tk.Menu(self.preview_window, tearoff=0)
@@ -53,6 +54,7 @@ class PreviewWindow:
         self.context_menu.add_command(
             label="开启敌对报警", command=self.toggle_enemy_alarm
         )
+        self.context_menu.add_command(label="开启同步脚本", command=self.sync_script)
         self.context_menu.add_separator()
         self.context_menu.add_command(label="后台运行(ctrl+alt+n重新显示)", command=self.preview_window.withdraw)
         self.context_menu.add_command(label="退出", command=self.close)
@@ -61,6 +63,8 @@ class PreviewWindow:
         """显示右键菜单"""
         current_label = "关闭敌对报警" if self.enemy_alarm_open else "开启敌对报警"
         self.context_menu.entryconfig(1, label=current_label)
+        current_label = "关闭同步脚本" if self.sync_script_open else "开启同步脚本"
+        self.context_menu.entryconfig(2, label=current_label)
         # 显示菜单并强制获取焦点
         self.context_menu.post(event.x_root, event.y_root)
         self.context_menu.focus_force()
@@ -193,6 +197,36 @@ class PreviewWindow:
                 
         threading.Thread(target=capture_screenshot, daemon=True).start()
         self.preview_window.after(self.check_enemy_time, self.check_enemy)
+
+    def sync_script(self):
+        """同步脚本"""
+        triggerHotkey = self.settings.get_qb_trigger_hotkey()
+        if self.sync_script_open:
+            self.sync_script_open = False
+            # 取消快捷键绑定
+            keyboard.remove_hotkey(triggerHotkey)
+            print("关闭同步脚本")
+            return
+        self.sync_script_open = True
+        print("开始同步脚本")
+        eve_windows = get_matched_windows()
+        if eve_windows:
+            print(f"找到匹配窗口: {eve_windows}")
+            # 绑定快捷键
+            keyboard.add_hotkey(triggerHotkey, self.send_key, args=(eve_windows,))
+        else:
+            print("没有找到匹配窗口")
+    
+    def send_key(self, eve_windows):
+        """发送按键到匹配窗口"""
+        send_key = self.settings.get_qb_send_key()
+        for hwnd in eve_windows:
+            if not is_minimized(hwnd):
+                send_key_to_eve_window(hwnd, send_key, require_activate=True)
+                print(f"发送按键到窗口: {hwnd}")
+            else:
+                print(f"窗口 {hwnd} 已最小化，跳过发送")
+        
 
     def bind_hotkeys(self):
         """绑定快捷键"""

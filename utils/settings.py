@@ -9,6 +9,13 @@ DEFAULT_SETTINGS = {
     "monitor_region": [0, 0, 0, 0],
     "enemy_match_threshold": 0.1,
     "windows_region": [0, 0],
+    "qb": {
+        "triggerHotkey": "Ctrl+Shift+F1",
+        "sendKey": "F1",
+        "delayBetween": 100,
+        "requireActivation": 1,
+        "windows": ["军用馒头", "隔壁老王", "新建文本文档", "识田间-平台端"]
+    }
 }
 
 class Settings(metaclass=Singleton):
@@ -39,6 +46,18 @@ class Settings(metaclass=Singleton):
         """保存窗口区域的设置"""
         self.settings["windows_region"] = windows_region
         self._save_settings()
+
+    def get_qb_settings(self):
+        """获取qb的设置"""
+        return self.settings.get("qb")
+    
+    def get_qb_trigger_hotkey(self):
+        """获取qb的触发热键设置"""
+        return self.settings["qb"].get("triggerHotkey")
+    
+    def get_qb_send_key(self):
+        """获取qb的发送按键设置"""
+        return self.settings["qb"].get("sendKey")
 
     def merge_settings_with_defaults(self, settings, defaults=None):
         """Merge the loaded settings with the default settings recursively."""
@@ -78,7 +97,7 @@ class Settings(metaclass=Singleton):
         os.makedirs(os.path.dirname(setting_path), exist_ok=True)
         try:
             with open(setting_path, "w", encoding="utf-8") as config_file:
-                json.dump(self.settings, config_file, indent=4)
+                json.dump(self.settings, config_file, ensure_ascii=False, indent=4)
 
         except Exception as e:
             print(
