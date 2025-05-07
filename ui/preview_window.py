@@ -229,12 +229,9 @@ class PreviewWindow:
         """发送按键到匹配窗口"""
         send_key = self.settings.get_qb_send_key()
         for hwnd in eve_windows:
-            if not is_minimized(hwnd):
-                send_key_to_eve_window(hwnd, send_key, require_activate=True)
-                print(f"发送按键到窗口: {hwnd}")
-                time.sleep(sleep_time)
-            else:
-                print(f"窗口 {hwnd} 已最小化，跳过发送")
+            send_key_to_eve_window(hwnd, send_key)
+            print(f"发送按键到窗口: {hwnd}")
+            time.sleep(sleep_time)
         
 
     def bind_hotkeys(self):

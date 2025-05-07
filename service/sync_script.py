@@ -2,6 +2,7 @@ import time
 
 import keyboard
 from utils.settings import Settings
+from win32api import VkKeyScan
 import pygetwindow as gw
 import win32gui
 import win32con
@@ -45,22 +46,17 @@ def is_minimized(hwnd):
         print(f"获取窗口最小化状态失败: {e}")
         return False
 
-def send_key_to_eve_window(hwnd, key, require_activate):
+def send_key_to_eve_window(hwnd, key):
     """发送按键到指定窗口"""
     key = key.lower()
-    
-    if require_activate:
-        try:
-            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)  # 如果窗口最小化，则恢复
-            win32gui.SetForegroundWindow(hwnd)  # 将窗口带到前台
-            time.sleep(0.1)
-            keyboard.press_and_release(key)
-        except Exception as e:
-            print(f"发送按键失败: {e}")
-    else:
-        win32gui.PostMessage(hwnd, win32con.WM_KEYDOWN, key, 0)
-        time.sleep(0.05)
-        win32gui.PostMessage(hwnd, win32con.WM_KEYUP, key, 0)
+    print(f"发送按键到窗口: {hwnd}, 按键: {key}")
+    try:
+        win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)  # 如果窗口最小化，则恢复
+        win32gui.SetForegroundWindow(hwnd)  # 将窗口带到前台
+        time.sleep(0.1)
+        keyboard.press_and_release(key)
+    except Exception as e:
+        print(f"发送按键失败: {e}")
 
 def get_window_title(hwnds):
     """获取窗口标题"""
