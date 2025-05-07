@@ -47,7 +47,7 @@ pip install -r requirements.txt
 {
     // 监控区域坐标 [左下角x,左下角y,右上角x,右上角y]
     "monitor_region": [ 0, 0, 0, 0],
-    // 预警图片匹配阈值
+    // 预警图片匹配阈值 [0-1] 
     "enemy_match_threshold": 0.1,
     // 记录监控区域在屏幕上的坐标
     "windows_region": [0, 0],
