@@ -8,7 +8,7 @@ import threading
 from PIL import ImageGrab, ImageTk
 
 from service.enemy_alert import EnemyAlert
-from service.sync_script import get_matched_windows, get_window_title, is_minimized, send_key_to_eve_window
+from service.sync_script import get_matched_windows, get_window_title, send_key_to_eve_window
 from utils.settings import Settings
 
 class PreviewWindow:
