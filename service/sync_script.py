@@ -2,7 +2,6 @@ import time
 
 import keyboard
 from utils.settings import Settings
-from win32api import VkKeyScan
 import pygetwindow as gw
 import win32gui
 import win32con
