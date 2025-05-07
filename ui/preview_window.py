@@ -53,9 +53,8 @@ class PreviewWindow:
     def create_context_menu(self):
         """创建右键菜单"""
         self.context_menu.add_command(label="重新选择区域", command=self.restart)
-        self.context_menu.add_command(
-            label="开启敌对报警", command=self.toggle_enemy_alarm
-        )
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label="开启敌对报警", command=self.toggle_enemy_alarm)
         self.context_menu.add_command(label="开启同步脚本", command=self.sync_script)
         self.context_menu.add_separator()
         self.context_menu.add_command(label="后台运行(ctrl+alt+n重新显示)", command=self.preview_window.withdraw)
@@ -64,9 +63,9 @@ class PreviewWindow:
     def show_context_menu(self, event):
         """显示右键菜单"""
         current_label = "关闭敌对报警" if self.enemy_alarm_open else "开启敌对报警"
-        self.context_menu.entryconfig(1, label=current_label)
-        current_label = "关闭同步脚本" if self.sync_script_open else "开启同步脚本"
         self.context_menu.entryconfig(2, label=current_label)
+        current_label = "关闭同步脚本" if self.sync_script_open else "开启同步脚本"
+        self.context_menu.entryconfig(3, label=current_label)
         # 显示菜单并强制获取焦点
         self.context_menu.post(event.x_root, event.y_root)
         self.context_menu.focus_force()
@@ -201,7 +200,7 @@ class PreviewWindow:
         self.preview_window.after(self.check_enemy_time, self.check_enemy)
 
     def sync_script(self):
-        """同步脚本"""
+        """开启关闭同步脚本"""
         triggerHotkey = self.settings.get_qb_trigger_hotkey()
         if self.sync_script_open:
             self.sync_script_open = False
@@ -210,7 +209,7 @@ class PreviewWindow:
             print("关闭同步脚本")
             return
         self.sync_script_open = True
-        print("开始同步脚本")
+        print("开启同步脚本")
         eve_windows = get_matched_windows()
         # 间隔时间
         sleep_time = self.settings.get_qb_delay_between() / 1000
@@ -223,7 +222,7 @@ class PreviewWindow:
             keyboard.add_hotkey(triggerHotkey, self.send_key, args=(eve_windows, sleep_time, ))
         else:
             self.sync_script_open = False
-            messagebox.showwarning("警告", "没有找到匹配窗口")
+            messagebox.showwarning("警告", "没有找到匹配窗口！\n请检查配置文件中的角色名，游戏角色是否登录")
             print("没有找到匹配窗口")
     
     def send_key(self, eve_windows, sleep_time):
