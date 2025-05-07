@@ -53,7 +53,7 @@ def send_key_to_eve_window(hwnd, key):
     try:
         win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)  # 如果窗口最小化，则恢复
         win32gui.SetForegroundWindow(hwnd)  # 将窗口带到前台
-        time.sleep(0.1)
+        time.sleep(0.05)
         keyboard.press_and_release(key)
     except Exception as e:
         print(f"发送按键失败: {e}")
