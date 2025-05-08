@@ -1,4 +1,5 @@
 import time
+from tkinter import messagebox
 
 import keyboard
 from utils.settings import Settings
@@ -10,10 +11,6 @@ import psutil
 
 
 settings = Settings()
-
-# 同步脚本配置
-sync_script_config = settings.get_qb_settings()
-
 def get_process_name(hwnd):
     """获取窗口进程名"""
     try:
@@ -25,7 +22,11 @@ def get_process_name(hwnd):
 def get_matched_windows():
     """获取匹配窗口"""
     windows = []
-    patterns = sync_script_config.get("windows", [])
+    patterns = settings.get_qb_settings().get("windows", [])
+    # 移除空元素
+    patterns = [pattern for pattern in patterns if pattern.strip()]
+    if len(patterns) == 0:
+        return []
     for win in gw.getAllWindows():
         hwnd = win._hWnd
         title = win.title

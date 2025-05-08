@@ -1,3 +1,5 @@
+from asyncio.windows_events import NULL
+from tarfile import NUL
 import time
 import tkinter as tk
 from tkinter import messagebox
@@ -9,6 +11,7 @@ from PIL import ImageGrab, ImageTk
 
 from service.enemy_alert import EnemyAlert
 from service.sync_script import get_matched_windows, get_window_title, send_key_to_eve_window
+from ui.setting_window import SettingsApp
 from utils.settings import Settings
 
 class PreviewWindow:
@@ -43,7 +46,7 @@ class PreviewWindow:
         self.hotkeys = []  # 用于存储绑定的快捷键
         self.enemy_alarm_open = False  # 敌对报警开关
         self.sync_script_open = False  # 同步脚本开关
-        self.enemy_alert = EnemyAlert()
+        self.enemy_alert = NULL  # 敌对报警实例
         # 创建右键菜单
         self.context_menu = tk.Menu(self.preview_window, tearoff=0)
         self.create_context_menu()
@@ -77,10 +80,9 @@ class PreviewWindow:
         # 添加图标支持
         self.context_menu.add_command(label="⟲ 重新选择区域", command=self.restart)
         self.context_menu.add_separator()
-        self.context_menu.add_command(
-            label="⚠ 开启敌对报警", command=self.toggle_enemy_alarm
-        )
+        self.context_menu.add_command(label="⚠ 开启敌对报警", command=self.toggle_enemy_alarm)
         self.context_menu.add_command(label="⚡ 开启同步脚本", command=self.sync_script)
+        self.context_menu.add_command(label="⚙ 配置设置", command=self.open_settings)
         self.context_menu.add_separator()
         self.context_menu.add_command(
             label="▼ 后台运行(ctrl+alt+n重新显示)", command=self.preview_window.withdraw
@@ -203,6 +205,7 @@ class PreviewWindow:
         """开启敌对报警"""
         if self.enemy_alarm_open:
             return
+        self.enemy_alert = EnemyAlert()
         self.enemy_alarm_open = True
         print("开始敌对报警")
         self.check_enemy()
@@ -211,6 +214,7 @@ class PreviewWindow:
         """关闭敌对报警"""
         if not self.enemy_alarm_open:
             return
+        self.enemy_alert = NULL
         self.enemy_alarm_open = False
         print("关闭敌对报警")
 
@@ -296,3 +300,21 @@ class PreviewWindow:
         for key, action in hotkeys.items():
             hotkey = keyboard.add_hotkey(key, action)
             self.hotkeys.append(hotkey)
+    def open_settings(self):
+        """打开设置界面"""
+        # 创建独立窗口
+        settings_window = tk.Toplevel(self.preview_window)
+        settings_window.title("配置管理")
+        settings_window.geometry("550x650")
+        settings_window.configure(bg="#2b2b2b")
+        
+        # 设置窗口属性
+        settings_window.attributes("-topmost", True)  # 置顶
+        settings_window.resizable(False, False)  # 固定大小
+        
+        try:
+            # 初始化设置界面
+            SettingsApp(settings_window)
+        except Exception as e:
+            print(f"初始化设置界面失败: {e}")
+            messagebox.showerror("错误", f"无法打开设置界面: {str(e)}")
