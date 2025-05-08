@@ -48,27 +48,61 @@ class PreviewWindow:
         self.context_menu = tk.Menu(self.preview_window, tearoff=0)
         self.create_context_menu()
         self.preview_window_update_time = 100  # 更新频率
-        self.check_enemy_time = 1500 #敌对警报检查频率
+        self.check_enemy_time = 1500  # 敌对警报检查频率
+        # 添加圆角边框和边框效果
+        self.preview_window.configure(bg="#2b2b2b")
+        self.preview_canvas.configure(
+            bg="#2b2b2b", highlightthickness=1, highlightbackground="#404040"
+        )
+        # 添加状态指示器
+        self.status_frame = tk.Frame(self.preview_window, bg="#2b2b2b")
+        self.status_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=5, pady=2)
+        # 添加状态指示灯
+        self.enemy_status = tk.Canvas(
+            self.status_frame, width=10, height=10, bg="#2b2b2b", highlightthickness=0
+        )
+        self.enemy_status.pack(side=tk.LEFT, padx=2)
+        self.enemy_status.create_oval(2, 2, 8, 8, fill="gray", tags="status")
 
     def create_context_menu(self):
         """创建右键菜单"""
-        self.context_menu.add_command(label="重新选择区域", command=self.restart)
+        self.context_menu = tk.Menu(
+            self.preview_window,
+            tearoff=0,
+            bg="#2b2b2b",
+            fg="white",
+            activebackground="#404040",
+            activeforeground="white",
+        )
+        # 添加图标支持
+        self.context_menu.add_command(label="⟲ 重新选择区域", command=self.restart)
         self.context_menu.add_separator()
-        self.context_menu.add_command(label="开启敌对报警", command=self.toggle_enemy_alarm)
-        self.context_menu.add_command(label="开启同步脚本", command=self.sync_script)
+        self.context_menu.add_command(
+            label="⚠ 开启敌对报警", command=self.toggle_enemy_alarm
+        )
+        self.context_menu.add_command(label="⚡ 开启同步脚本", command=self.sync_script)
         self.context_menu.add_separator()
-        self.context_menu.add_command(label="后台运行(ctrl+alt+n重新显示)", command=self.preview_window.withdraw)
-        self.context_menu.add_command(label="退出", command=self.close)
+        self.context_menu.add_command(
+            label="▼ 后台运行(ctrl+alt+n重新显示)", command=self.preview_window.withdraw
+        )
+        self.context_menu.add_command(label="✕ 退出", command=self.close)
 
     def show_context_menu(self, event):
         """显示右键菜单"""
-        current_label = "关闭敌对报警" if self.enemy_alarm_open else "开启敌对报警"
+        current_label = "⚠ 关闭敌对报警" if self.enemy_alarm_open else "⚠ 开启敌对报警"
         self.context_menu.entryconfig(2, label=current_label)
-        current_label = "关闭同步脚本" if self.sync_script_open else "开启同步脚本"
+        current_label = (
+            "⚡ 关闭同步脚本" if self.sync_script_open else "⚡ 开启同步脚本"
+        )
         self.context_menu.entryconfig(3, label=current_label)
         # 显示菜单并强制获取焦点
         self.context_menu.post(event.x_root, event.y_root)
         self.context_menu.focus_force()
+
+    def update_status_indicators(self):
+        """更新状态指示器"""
+        enemy_color = "#00ff00" if self.enemy_alarm_open else "gray"
+        self.enemy_status.itemconfig("status", fill=enemy_color)
 
     def toggle_enemy_alarm(self):
         """切换敌对报警状态"""
@@ -77,6 +111,7 @@ class PreviewWindow:
             self.stop_enemy_alarm()
         else:
             self.start_enemy_alarm()
+            self.update_status_indicators()
 
     @staticmethod
     def handle_click(x, y):
@@ -120,6 +155,7 @@ class PreviewWindow:
         """更新预览窗口中的截图"""
         if self.restart_flag or self.is_destroyed:
             return
+
         def capture_screenshot():
             error_flag = False
             try:
@@ -133,7 +169,7 @@ class PreviewWindow:
                 error_flag = True
             finally:
                 self.preview_window_update_time = 1000 if error_flag else 100
-                
+
         threading.Thread(target=capture_screenshot, daemon=True).start()
         self.preview_window.after(self.preview_window_update_time, self.update_preview)
 
@@ -183,6 +219,7 @@ class PreviewWindow:
         print(f"========检测是否有敌对========{self.enemy_alarm_open}")
         if not self.enemy_alarm_open or self.restart_flag:
             return
+
         def capture_screenshot():
             error_flag = False
             try:
@@ -195,7 +232,7 @@ class PreviewWindow:
                 error_flag = True
             finally:
                 self.check_enemy_time = 3000 if error_flag else 1500
-                
+
         threading.Thread(target=capture_screenshot, daemon=True).start()
         self.preview_window.after(self.check_enemy_time, self.check_enemy)
 
@@ -216,15 +253,25 @@ class PreviewWindow:
         if eve_windows:
             eve_windows_title = get_window_title(eve_windows)
             messagebox.showinfo(
-                "提示", f"找到匹配窗口:\n {'\n '.join(eve_windows_title)}\n\n请按下快捷键: {triggerHotkey}"
+                "提示",
+                f"找到匹配窗口:\n {'\n '.join(eve_windows_title)}\n\n请按下快捷键: {triggerHotkey}",
             )
             # 绑定快捷键
-            keyboard.add_hotkey(triggerHotkey, self.send_key, args=(eve_windows, sleep_time, ))
+            keyboard.add_hotkey(
+                triggerHotkey,
+                self.send_key,
+                args=(
+                    eve_windows,
+                    sleep_time,
+                ),
+            )
         else:
             self.sync_script_open = False
-            messagebox.showwarning("警告", "没有找到匹配窗口！\n请检查配置文件中的角色名，游戏角色是否登录")
+            messagebox.showwarning(
+                "警告", "没有找到匹配窗口！\n请检查配置文件中的角色名，游戏角色是否登录"
+            )
             print("没有找到匹配窗口")
-    
+
     def send_key(self, eve_windows, sleep_time):
         """发送按键到匹配窗口"""
         send_key = self.settings.get_qb_send_key()
@@ -232,7 +279,6 @@ class PreviewWindow:
             send_key_to_eve_window(hwnd, send_key)
             print(f"发送按键到窗口: {hwnd}")
             time.sleep(sleep_time)
-        
 
     def bind_hotkeys(self):
         """绑定快捷键"""
