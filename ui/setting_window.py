@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from utils.settings import DEFAULT_SETTINGS, Settings
+from utils.settings import Settings
 
 
 class SettingsApp:
