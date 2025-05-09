@@ -1,5 +1,4 @@
 from asyncio.windows_events import NULL
-from tarfile import NUL
 import time
 import tkinter as tk
 from tkinter import messagebox
