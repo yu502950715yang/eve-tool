@@ -1,6 +1,4 @@
 import time
-from tkinter import messagebox
-
 import keyboard
 from utils.settings import Settings
 import pygetwindow as gw

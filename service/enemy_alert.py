@@ -1,10 +1,9 @@
 import os
-from threading import Thread
 import threading
 import cv2
 import numpy as np
 import winsound
-
+from threading import Thread
 from utils.path_util import get_alert_img_path, get_alert_sound_path
 from utils.settings import Settings
 from utils.singleton import Singleton
