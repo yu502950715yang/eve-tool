@@ -79,10 +79,10 @@ class PreviewWindow:
             activeforeground="white",
         )
         # 添加图标支持
-        self.context_menu.add_command(label="⟲ 重新选择区域", command=self.restart)
+        self.context_menu.add_command(label="🔄 重新选择区域", command=self.restart)
         self.context_menu.add_separator()
         self.context_menu.add_command(label="⚠️ 开启敌对报警", command=self.toggle_enemy_alarm)
-        self.context_menu.add_command(label="🎯 开启同步脚本", command=self.sync_script)
+        self.context_menu.add_command(label="💪 开启同步脚本", command=self.sync_script)
         self.context_menu.add_command(label="⚙️ 配置设置", command=self.open_settings)
         self.context_menu.add_separator()
         self.context_menu.add_command(label="🌐 kb网", command=lambda: self.openUrl('https://kb.ceve-market.org'))
@@ -90,16 +90,16 @@ class PreviewWindow:
         self.context_menu.add_command(label="🔧 EVE 小工具集", command=lambda: self.openUrl('https://tools.ceve-market.org/'))
         self.context_menu.add_separator()
         self.context_menu.add_command(
-            label="▼ 后台运行(ctrl+alt+n重新显示)", command=self.preview_window.withdraw
+            label="🔻 后台运行(ctrl+alt+n重新显示)", command=self.preview_window.withdraw
         )
-        self.context_menu.add_command(label="✕ 退出", command=self.close)
+        self.context_menu.add_command(label="❌ 退出", command=self.close)
 
     def show_context_menu(self, event):
         """显示右键菜单"""
         current_label = "⚠️ 关闭敌对报警" if self.enemy_alarm_open else "⚠️ 开启敌对报警"
         self.context_menu.entryconfig(2, label=current_label)
         current_label = (
-            "🎯 关闭同步脚本" if self.sync_script_open else "🎯 开启同步脚本"
+            "💪 关闭同步脚本" if self.sync_script_open else "💪 开启同步脚本"
         )
         self.context_menu.entryconfig(3, label=current_label)
         # 显示菜单并强制获取焦点
