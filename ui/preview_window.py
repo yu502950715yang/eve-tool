@@ -1,6 +1,8 @@
 from asyncio.windows_events import NULL
 import time
 import tkinter as tk
+
+import webbrowser
 from tkinter import messagebox
 
 import keyboard
@@ -82,6 +84,10 @@ class PreviewWindow:
         self.context_menu.add_command(label="⚠ 开启敌对报警", command=self.toggle_enemy_alarm)
         self.context_menu.add_command(label="⚡ 开启同步脚本", command=self.sync_script)
         self.context_menu.add_command(label="⚙ 配置设置", command=self.open_settings)
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label="🌐 kb网", command=lambda: self.openUrl('https://kb.ceve-market.org'))
+        self.context_menu.add_command(label="🛒 市场中心", command=lambda: self.openUrl('https://www.ceve-market.org'))
+        self.context_menu.add_command(label="🔧 EVE 小工具集", command=lambda: self.openUrl('https://tools.ceve-market.org/'))
         self.context_menu.add_separator()
         self.context_menu.add_command(
             label="▼ 后台运行(ctrl+alt+n重新显示)", command=self.preview_window.withdraw
@@ -317,3 +323,11 @@ class PreviewWindow:
         except Exception as e:
             print(f"初始化设置界面失败: {e}")
             messagebox.showerror("错误", f"无法打开设置界面: {str(e)}")
+    
+    def openUrl(self, url):
+        """打开指定的URL"""
+        try:
+            webbrowser.open(url)
+        except Exception as e:
+            print(f"无法打开链接: {e}")
+            messagebox.showerror("错误", f"无法打开链接: {str(e)}")
