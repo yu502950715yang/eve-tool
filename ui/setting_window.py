@@ -67,6 +67,17 @@ class SettingsApp:
             validatecommand=(self.root.register(self.validate_threshold), "%P"),
         )
         self.threshold.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
+        # 新增提示标签
+        ttk.Label(
+            threshold_frame, 
+            text="数值越小匹配越精确", 
+            foreground="#888888",  # 灰色文字
+            font=("Segoe UI", 8)    # 更小字号
+        ).grid(
+            row=0, column=2,
+            padx=(0,5),  pady=5,
+            sticky=tk.W
+        )
 
         # QB设置页面
         qb_frame = ttk.Frame(notebook)
