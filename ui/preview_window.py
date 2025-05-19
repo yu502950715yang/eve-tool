@@ -8,7 +8,7 @@ from tkinter import messagebox
 import keyboard
 import pyautogui
 import threading
-from PIL import ImageGrab, ImageTk
+from PIL import ImageGrab, ImageTk, Image
 
 from service.enemy_alert import EnemyAlert
 from service.sync_script import get_matched_windows, get_window_title, send_key_to_eve_window
@@ -24,6 +24,8 @@ class PreviewWindow:
             window_region = [0, 0]
         self.restart_callback = restart_callback
         self.x, self.y = 0, 0
+        self.original_width = abs(region[2] - region[0])
+        self.original_height = abs(region[3] - region[1])
         # 初始化预览窗口，设置窗口大小和画布
         self.region = region
         self.preview_window = tk.Tk()
@@ -37,10 +39,11 @@ class PreviewWindow:
         self.preview_window.geometry(
             f"{width}x{height}+{window_region[0]}+{window_region[1]}"
         )
-        self.preview_window.overrideredirect(True)
+        # self.preview_window.overrideredirect(True)
         self.preview_canvas = tk.Canvas(self.preview_window)
-        self.preview_canvas.pack(fill=tk.BOTH, expand=True)
+        self.preview_canvas.pack()
         self.preview_canvas.configure(highlightthickness=0, bd=0)
+
         self.preview_image = None
         self.restart_flag = False
         self.is_destroyed = False  # 标志窗口是否已经被销毁
@@ -182,9 +185,28 @@ class PreviewWindow:
 
     def update_canvas(self, screenshot):
         """在主线程中更新画布"""
-        self.preview_image = ImageTk.PhotoImage(screenshot)
+        # 获取画布当前尺寸
+        canvas_width = self.preview_canvas.winfo_width()
+        canvas_height = self.preview_canvas.winfo_height()
+
+        # 获取截图原始尺寸
+        original_width, original_height = screenshot.size
+
+        # 计算缩放比例（保持宽高比）
+        scale = min(canvas_width / original_width, canvas_height / original_height)
+        new_size = (int(original_width * scale), int(original_height * scale))
+
+        # 缩放图像（使用双线性插值提高质量）
+        resized_image = screenshot.resize(new_size, Image.Resampling.BILINEAR)
+
+        #转换为Tkinter兼容格式
+        self.preview_image = ImageTk.PhotoImage(resized_image)
+
+        # self.preview_image = ImageTk.PhotoImage(screenshot)
         self.preview_canvas.delete("all")  # 清除之前的图像，避免叠加
-        self.preview_canvas.create_image(0, 0, anchor=tk.NW, image=self.preview_image)
+        x_center = (canvas_width - new_size[0]) // 2
+        y_center = (canvas_height - new_size[1]) // 2
+        self.preview_canvas.create_image(x_center, y_center, anchor=tk.NW, image=self.preview_image)
 
     def on_canvas_click(self, event):
         """处理画布点击事件，计算并输出点击的屏幕坐标"""
