@@ -61,15 +61,8 @@ class PreviewWindow:
         self.preview_canvas.configure(
             bg="#2b2b2b", highlightthickness=1, highlightbackground="#404040"
         )
-        # 添加状态指示器
-        self.status_frame = tk.Frame(self.preview_window, bg="#2b2b2b")
-        self.status_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=5, pady=2)
-        # 添加状态指示灯
-        self.enemy_status = tk.Canvas(
-            self.status_frame, width=10, height=10, bg="#2b2b2b", highlightthickness=0
-        )
-        self.enemy_status.pack(side=tk.LEFT, padx=2)
-        self.enemy_status.create_oval(2, 2, 8, 8, fill="gray", tags="status")
+        # 自定义窗口关闭事件
+        self.preview_window.protocol("WM_DELETE_WINDOW", self.close)
 
     def create_context_menu(self):
         """创建右键菜单"""
@@ -109,11 +102,6 @@ class PreviewWindow:
         self.context_menu.post(event.x_root, event.y_root)
         self.context_menu.focus_force()
 
-    def update_status_indicators(self):
-        """更新状态指示器"""
-        enemy_color = "#00ff00" if self.enemy_alarm_open else "gray"
-        self.enemy_status.itemconfig("status", fill=enemy_color)
-
     def toggle_enemy_alarm(self):
         """切换敌对报警状态"""
         print("切换敌对报警状态")
@@ -121,7 +109,6 @@ class PreviewWindow:
             self.stop_enemy_alarm()
         else:
             self.start_enemy_alarm()
-            self.update_status_indicators()
 
     @staticmethod
     def handle_click(x, y):
@@ -144,8 +131,8 @@ class PreviewWindow:
             # 取消绑定的快捷键
             keyboard.remove_all_hotkeys()
 
-    def on_canvas_press_right(self, event):
-        """记录右键按下时的初始坐标"""
+    def on_canvas_press_left(self, event):
+        """记录左键键按下时的初始坐标"""
         self.x = event.x
         self.y = event.y
 
@@ -218,7 +205,8 @@ class PreviewWindow:
     def start(self):
         """启动预览窗口，绑定事件并开始更新循环"""
         self.bind_hotkeys()
-        self.update_preview()
+        # 延迟0.5秒，确保窗口已创建
+        self.preview_window.after(500, self.update_preview)
         self.preview_window.mainloop()
 
     def restart(self):
@@ -313,7 +301,7 @@ class PreviewWindow:
 
     def bind_hotkeys(self):
         """绑定快捷键"""
-        self.preview_canvas.bind("<ButtonPress-1>", self.on_canvas_press_right)
+        self.preview_canvas.bind("<ButtonPress-1>", self.on_canvas_press_left)
         self.preview_canvas.bind("<B1-Motion>", self.move)
         self.preview_canvas.bind("<Button-3>", self.show_context_menu)
         hotkeys = {
