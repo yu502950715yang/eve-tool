@@ -3,24 +3,25 @@ import PyInstaller.__main__
 import shutil
 import os
 
-BUILD_PATH = "eve_tool"
+BUILD_PATH = "dist/eve_tool"
 
 # 清理历史构建
-if os.path.exists(BUILD_PATH):
-    shutil.rmtree(BUILD_PATH)
+if os.path.exists("dist"):
+    shutil.rmtree("dist")
 if os.path.exists("build"):
     shutil.rmtree("build")
 
 PyInstaller.__main__.run(
     [
         "main.py",
-        "--onefile",
-        "--windowed",
-        "--distpath=./eve_tool",
+        "--onedir",
+        "--windowed", # 隐藏控制台
+        "--distpath=./dist",
         "--name=eve_tool",
         "--icon=./imgs/icon.ico",
         "--hidden-import=pyautogui",
-        "--hidden-import=playsound",
+        "--strip",  # 去除调试信息
+        "--runtime-hook=runtime_hook.py",  # 自定义 hook
     ]
 )
 

@@ -1,24 +1,17 @@
 import os
-from threading import Thread
 import threading
 import cv2
 import numpy as np
-
+import winsound
+from threading import Thread
 from utils.path_util import get_alert_img_path, get_alert_sound_path
 from utils.settings import Settings
+from utils.singleton import Singleton
 
 settings = Settings()
 
-
-class EnemyAlert:
-
-    _instance = None
-
-    def __new__(cls):
-        """重写 __new__ 方法实现单例"""
-        if not cls._instance:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+class EnemyAlert(metaclass=Singleton):
+    """使用元类实现的单例模式敌人警报类"""
 
     def __init__(self):
         self.templates = self.load_templates()
@@ -32,12 +25,11 @@ class EnemyAlert:
         return img
 
     def preprocess_screenshot(self, img):
-        # img = cv2.GaussianBlur(img, (3, 3), 0)  # 高斯模糊
-        # img = cv2.equalizeHist(img)                  # 直方图均衡化
+        img = cv2.GaussianBlur(img, (1, 1), 0)  # 高斯模糊
         # img = cv2.Canny(img, threshold1=50, threshold2=150)  # 边缘检测
         return img
 
-    def multi_scale_match(self, template, screenshot, threshold):
+    def multi_scale_match(self, template, screenshot):
         scales = [0.8, 1.0, 1.2]  # 定义缩放比例
         for scale in scales:
             resized_template = cv2.resize(template, (0, 0), fx=scale, fy=scale)
@@ -51,18 +43,20 @@ class EnemyAlert:
             cv2.TM_CCOEFF	        相关系数匹配	    值越大越好	    最大值
             cv2.TM_CCOEFF_NORMED	归一化相关系数匹配	值越大越好	    最大值
             """
-            result = cv2.matchTemplate(
-                screenshot, resized_template, cv2.TM_CCOEFF_NORMED
-            )
+             # 对每个通道分别进行匹配
+            result_b = cv2.matchTemplate(screenshot[:, :, 0], resized_template[:, :, 0], cv2.TM_SQDIFF_NORMED)
+            result_g = cv2.matchTemplate(screenshot[:, :, 1], resized_template[:, :, 1], cv2.TM_SQDIFF_NORMED)
+            result_r = cv2.matchTemplate(screenshot[:, :, 2], resized_template[:, :, 2], cv2.TM_SQDIFF_NORMED)
+            result = (result_b + result_g + result_r) / 3.0
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-            if max_val > threshold:
-                return True, max_val
-            # if min_val < 0.1:
-            #     return True, min_val
+            # if max_val > self.match_threshold:
+            #     return True, max_val
+            if min_val < self.match_threshold:
+                return True, min_val
         return False, 0
 
     def load_templates(self):
-        """加载模板图片并转为灰度图"""
+        """加载模板图片"""
         template_dir = get_alert_img_path()
         templates = {}
         if not os.path.exists(template_dir):
@@ -87,9 +81,7 @@ class EnemyAlert:
         color_screenshot = self.preprocess_screenshot(screenshot_cv)
         temp_play_flag = False
         for key, template in self.templates.items():
-            match_found, max_val = self.multi_scale_match(
-                template, color_screenshot, self.match_threshold
-            )
+            match_found, max_val = self.multi_scale_match(template, color_screenshot)
             if match_found:
                 print(f"文件名：{key}，匹配值：{max_val}")
                 temp_play_flag = True
@@ -103,16 +95,12 @@ class EnemyAlert:
 
     def play_alert_sound(self):
         """非阻塞播放且避免重复播放"""
-
         def _play():
             try:
                 with self.play_lock:
                     if self.is_playing:
                         return
                     self.is_playing = True
-
-                import winsound
-
                 print("播放预警")
                 winsound.PlaySound(
                     get_alert_sound_path(), winsound.SND_FILENAME | winsound.SND_ASYNC
@@ -122,7 +110,6 @@ class EnemyAlert:
             finally:
                 with self.play_lock:
                     self.is_playing = False
-
         # 仅在非播放状态时启动新线程
         with self.play_lock:
             if not self.is_playing:
