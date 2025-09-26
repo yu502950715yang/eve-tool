@@ -129,3 +129,6 @@ gitversion
 
 # 配置文件
 config/
+
+# 环境
+.conda
