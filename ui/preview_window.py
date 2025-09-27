@@ -257,11 +257,11 @@ class PreviewWindow:
 
     def sync_script(self):
         """开启关闭同步脚本"""
-        triggerHotkey = self.settings.get_qb_trigger_hotkey()
+        sendKey = self.settings.get_qb_send_key()
         if self.sync_script_open:
             self.sync_script_open = False
             # 取消快捷键绑定
-            keyboard.remove_hotkey(triggerHotkey)
+            keyboard.remove_hotkey(sendKey)
             print("关闭同步脚本")
             return
         self.sync_script_open = True
@@ -273,11 +273,11 @@ class PreviewWindow:
             eve_windows_title = get_window_title(eve_windows)
             messagebox.showinfo(
                 "提示",
-                f"找到匹配窗口:\n {'\n '.join(eve_windows_title)}\n\n请按下快捷键: {triggerHotkey}",
+                f"找到匹配窗口:\n {'\n '.join(eve_windows_title)}\n\n请按下快捷键: {sendKey}",
             )
             # 绑定快捷键
             keyboard.add_hotkey(
-                triggerHotkey,
+                sendKey,
                 self.send_key,
                 args=(
                     eve_windows,
