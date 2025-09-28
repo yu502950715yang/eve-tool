@@ -14,6 +14,7 @@ from service.sync_script import (
     get_matched_windows,
     get_window_title,
     send_key_to_eve_window,
+    send_key_to_eve_window_background
 )
 from ui.setting_window import SettingsApp
 from utils.settings import Settings
@@ -317,7 +318,7 @@ class PreviewWindow:
         """发送按键到匹配窗口"""
         send_key = self.settings.get_qb_send_key()
         for hwnd in eve_windows:
-            send_key_to_eve_window(hwnd, send_key)
+            send_key_to_eve_window_background(hwnd, send_key)
             print(f"发送按键到窗口: {hwnd}")
             time.sleep(sleep_time)
 
