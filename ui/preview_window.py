@@ -2,7 +2,6 @@ from asyncio.windows_events import NULL
 import time
 import tkinter as tk
 
-import webbrowser
 from tkinter import messagebox
 
 import keyboard
@@ -11,9 +10,15 @@ import threading
 from PIL import ImageGrab, ImageTk, Image
 
 from service.enemy_alert import EnemyAlert
-from service.sync_script import get_matched_windows, get_window_title, send_key_to_eve_window
+from service.sync_script import (
+    get_matched_windows,
+    get_window_title,
+    send_key_to_eve_window,
+)
 from ui.setting_window import SettingsApp
 from utils.settings import Settings
+from utils.eve_other_tools_navigator import EveOtherToolsNavigator
+
 
 class PreviewWindow:
 
@@ -39,6 +44,7 @@ class PreviewWindow:
         self.preview_window.geometry(
             f"{width}x{height}+{window_region[0]}+{window_region[1]}"
         )
+        # 开启后隐藏窗口title
         # self.preview_window.overrideredirect(True)
         self.preview_canvas = tk.Canvas(self.preview_window)
         self.preview_canvas.pack()
@@ -63,6 +69,8 @@ class PreviewWindow:
         )
         # 自定义窗口关闭事件
         self.preview_window.protocol("WM_DELETE_WINDOW", self.close)
+        # 创建其他三方工具导航实例
+        self.eve_other_tools_navigator = EveOtherToolsNavigator()
 
     def create_context_menu(self):
         """创建右键菜单"""
@@ -77,16 +85,28 @@ class PreviewWindow:
         # 添加图标支持
         self.context_menu.add_command(label="🔄 重新选择区域", command=self.restart)
         self.context_menu.add_separator()
-        self.context_menu.add_command(label="⚠️ 开启敌对报警", command=self.toggle_enemy_alarm)
+        self.context_menu.add_command(
+            label="⚠️ 开启敌对报警", command=self.toggle_enemy_alarm
+        )
         self.context_menu.add_command(label="💪 开启同步脚本", command=self.sync_script)
         self.context_menu.add_command(label="⚙️ 配置设置", command=self.open_settings)
         self.context_menu.add_separator()
-        self.context_menu.add_command(label="🌐 kb网", command=lambda: self.openUrl('https://kb.ceve-market.org'))
-        self.context_menu.add_command(label="🛒 市场中心", command=lambda: self.openUrl('https://www.ceve-market.org'))
-        self.context_menu.add_command(label="🔧 EVE 小工具集", command=lambda: self.openUrl('https://tools.ceve-market.org/'))
+        self.context_menu.add_command(
+            label="🌐 kb网",
+            command=lambda: self.eve_other_tools_navigator.open_url("kb"),
+        )
+        self.context_menu.add_command(
+            label="🛒 市场中心",
+            command=lambda: self.eve_other_tools_navigator.open_url("market"),
+        )
+        self.context_menu.add_command(
+            label="🔧 EVE 小工具集",
+            command=lambda: self.eve_other_tools_navigator.open_url("tools"),
+        )
         self.context_menu.add_separator()
         self.context_menu.add_command(
-            label="🔻 后台运行(ctrl+alt+n重新显示)", command=self.preview_window.withdraw
+            label="🔻 后台运行(ctrl+alt+n重新显示)",
+            command=self.preview_window.withdraw,
         )
         self.context_menu.add_command(label="❌ 退出", command=self.close)
 
@@ -186,14 +206,16 @@ class PreviewWindow:
         # 缩放图像（使用双线性插值提高质量）
         resized_image = screenshot.resize(new_size, Image.Resampling.BILINEAR)
 
-        #转换为Tkinter兼容格式
+        # 转换为Tkinter兼容格式
         self.preview_image = ImageTk.PhotoImage(resized_image)
 
         # self.preview_image = ImageTk.PhotoImage(screenshot)
         self.preview_canvas.delete("all")  # 清除之前的图像，避免叠加
         x_center = (canvas_width - new_size[0]) // 2
         y_center = (canvas_height - new_size[1]) // 2
-        self.preview_canvas.create_image(x_center, y_center, anchor=tk.NW, image=self.preview_image)
+        self.preview_canvas.create_image(
+            x_center, y_center, anchor=tk.NW, image=self.preview_image
+        )
 
     def on_canvas_click(self, event):
         """处理画布点击事件，计算并输出点击的屏幕坐标"""
@@ -315,6 +337,7 @@ class PreviewWindow:
         for key, action in hotkeys.items():
             hotkey = keyboard.add_hotkey(key, action)
             self.hotkeys.append(hotkey)
+
     def open_settings(self):
         """打开设置界面"""
         # 创建独立窗口
@@ -322,22 +345,14 @@ class PreviewWindow:
         settings_window.title("配置管理")
         settings_window.geometry("550x650")
         settings_window.configure(bg="#2b2b2b")
-        
+
         # 设置窗口属性
         settings_window.attributes("-topmost", True)  # 置顶
         settings_window.resizable(False, False)  # 固定大小
-        
+
         try:
             # 初始化设置界面
             SettingsApp(settings_window)
         except Exception as e:
             print(f"初始化设置界面失败: {e}")
             messagebox.showerror("错误", f"无法打开设置界面: {str(e)}")
-    
-    def openUrl(self, url):
-        """打开指定的URL"""
-        try:
-            webbrowser.open(url)
-        except Exception as e:
-            print(f"无法打开链接: {e}")
-            messagebox.showerror("错误", f"无法打开链接: {str(e)}")
