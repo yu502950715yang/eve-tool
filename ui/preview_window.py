@@ -1,6 +1,7 @@
 from asyncio.windows_events import NULL
 import time
 import tkinter as tk
+import mss
 
 from tkinter import messagebox
 
@@ -177,11 +178,19 @@ class PreviewWindow:
         def capture_screenshot():
             error_flag = False
             try:
-                screenshot = ImageGrab.grab(bbox=self.region)
-                if screenshot.size == (0, 0):  # 检查无效截图
-                    raise Exception("Invalid screenshot")
-                # 在主线程中更新画布
-                self.preview_window.after(0, lambda: self.update_canvas(screenshot))
+                with mss.mss() as sct:
+                # 使用mss处理多屏幕截图
+                    bbox = {
+                        "top": self.region[1],
+                        "left": self.region[0],
+                        "width": self.region[2] - self.region[0],
+                        "height": self.region[3] - self.region[1]
+                    }
+                    screenshot = sct.grab(bbox)
+                    # 转换为PIL图像
+                    pil_image = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")
+                    # 在主线程中更新画布
+                    self.preview_window.after(0, lambda: self.update_canvas(pil_image))
             except Exception as e:
                 print(f"截图失败: {e}")
                 error_flag = True
@@ -265,10 +274,19 @@ class PreviewWindow:
         def capture_screenshot():
             error_flag = False
             try:
-                screenshot = ImageGrab.grab(bbox=self.region)
-                if screenshot.size == (0, 0):  # 检查无效截图
-                    raise Exception("Invalid screenshot")
-                self.enemy_alert.check_enemy(screenshot)
+                with mss.mss() as sct:
+                    bbox = {
+                        "top": self.region[1],
+                        "left": self.region[0],
+                        "width": self.region[2] - self.region[0],
+                        "height": self.region[3] - self.region[1]
+                    }
+                    screenshot = sct.grab(bbox)
+                    if screenshot.size == (0, 0):  # 检查无效截图
+                        raise Exception("Invalid screenshot")
+                    # 转换为PIL图像
+                    pil_image = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")
+                    self.enemy_alert.check_enemy(pil_image)
             except Exception as e:
                 print(f"截图失败: {e}")
                 error_flag = True

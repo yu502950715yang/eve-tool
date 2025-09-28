@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox as messagebox
+from screeninfo import get_monitors
 
 
 class ScreenRegionSelector:
@@ -9,6 +10,7 @@ class ScreenRegionSelector:
         self.start_y = None
         self.end_x = None
         self.end_y = None
+        self.monitors = get_monitors() #获取所有可用屏幕信息
         self.root = tk.Tk()
         # 设置窗口置顶
         self.root.attributes("-topmost", True)
@@ -54,8 +56,16 @@ class ScreenRegionSelector:
         """启动全屏窗口，允许用户选择屏幕区域，并返回选中的区域坐标"""
         esc_pressed = False
         while True:
+            # 计算覆盖所有屏幕的总区域
+            min_x = min(monitor.x for monitor in self.monitors)
+            min_y = min(monitor.y for monitor in self.monitors)
+            max_x = max(monitor.x + monitor.width for monitor in self.monitors)
+            max_y = max(monitor.y + monitor.height for monitor in self.monitors)
+
             # 启动全屏窗口
-            self.root.attributes("-fullscreen", True)
+            self.root.geometry(f"{max_x - min_x}x{max_y - min_y}+{min_x}+{min_y}")
+            self.root.attributes("-fullscreen", False)
+            self.root.overrideredirect(True)  # 无边框窗口
             self.root.attributes("-alpha", 0.3)
             self.root.mainloop()
 
