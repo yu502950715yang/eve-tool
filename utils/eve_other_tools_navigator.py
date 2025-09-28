@@ -12,9 +12,6 @@ class EveOtherToolsNavigator:
         "tools": "https://tools.ceve-market.org",
     }
 
-    def __init__(self):
-        pass
-
     def open_url(self, url_key):
         if url_key not in self.DEFAULT_URLS:
             logger.error(f"未知的URL键: {url_key}")
