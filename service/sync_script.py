@@ -59,25 +59,41 @@ def send_key_to_eve_window(hwnd, key):
 
 def send_key_to_eve_window_background(hwnd, key):
     """在后台发送按键到指定窗口，不改变窗口焦点"""
-    key = key.lower()
+    key = key.upper()  # 转换为大写以便匹配
     print(f"后台发送按键到窗口: {hwnd}, 按键: {key}")
     
     try:
-        # 将按键字符转换为虚拟键码
-        vk_code = win32api.VkKeyScan(key)
-        if vk_code == -1:
-            print(f"无法找到键码: {key}")
-            return
+        # 处理功能键
+        if key.startswith('F') and len(key) > 1:
+            # 处理 F1-F12 功能键
+            try:
+                f_number = int(key[1:])
+                if 1 <= f_number <= 12:
+                    vk_code = getattr(win32con, f'VK_F{f_number}')
+                else:
+                    print(f"不支持的功能键: {key}")
+                    return
+            except ValueError:
+                print(f"无效的功能键格式: {key}")
+                return
+        else:
+            # 处理普通字符键
+            key = key.lower()
+            vk_code = win32api.VkKeyScan(key)
+            if vk_code == -1:
+                print(f"无法找到键码: {key}")
+                return
+            vk_code = vk_code & 0xFF
             
-        scan_code = win32api.MapVirtualKey(vk_code & 0xFF, 0)
+        scan_code = win32api.MapVirtualKey(vk_code, 0)
         
         # 发送按键按下消息
-        win32gui.PostMessage(hwnd, win32con.WM_KEYDOWN, vk_code & 0xFF, 
+        win32gui.PostMessage(hwnd, win32con.WM_KEYDOWN, vk_code, 
                            (scan_code << 16) | 0x00000001)
         time.sleep(0.01)
         
         # 发送按键释放消息
-        win32gui.PostMessage(hwnd, win32con.WM_KEYUP, vk_code & 0xFF, 
+        win32gui.PostMessage(hwnd, win32con.WM_KEYUP, vk_code, 
                            (scan_code << 16) | 0xC0000001)
                            
     except Exception as e:
