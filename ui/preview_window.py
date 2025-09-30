@@ -2,6 +2,7 @@ from asyncio.windows_events import NULL
 import time
 import tkinter as tk
 import mss
+import win32gui
 
 from tkinter import messagebox
 
@@ -334,7 +335,11 @@ class PreviewWindow:
     def send_key(self, eve_windows, sleep_time):
         """发送按键到匹配窗口"""
         send_key = self.settings.get_qb_send_key()
+        current_window = win32gui.GetForegroundWindow()
         for hwnd in eve_windows:
+            if hwnd == current_window:
+                print(f"跳过当前窗口: {hwnd}")
+                continue
             send_key_to_eve_window_background(hwnd, send_key)
             print(f"发送按键到窗口: {hwnd}")
             time.sleep(sleep_time)
