@@ -8,13 +8,12 @@ from tkinter import messagebox
 import keyboard
 import pyautogui
 import threading
-from PIL import ImageGrab, ImageTk, Image
+from PIL import ImageTk, Image
 
 from service.enemy_alert import EnemyAlert
 from service.sync_script import (
     get_matched_windows,
     get_window_title,
-    send_key_to_eve_window,
     send_key_to_eve_window_background
 )
 from ui.setting_window import SettingsApp
