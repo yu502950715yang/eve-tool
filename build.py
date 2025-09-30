@@ -20,7 +20,7 @@ PyInstaller.__main__.run(
         "--name=eve_tool",
         "--icon=./imgs/icon.ico",
         "--hidden-import=pyautogui",
-        "--strip",  # 去除调试信息
+        # "--strip",  # 去除调试信息 windows会报错
         "--runtime-hook=runtime_hook.py",  # 自定义 hook
     ]
 )
